@@ -1213,5 +1213,7 @@ Timestamp	dt2local(Timestamp, int);
 struct tm *	gmtsub(const pg_time_t *, long, struct tm *);
 struct tm *	pg_gmtime(const pg_time_t *);
 TimeOffset	time2t(const int, const int, const int, const fsec_t);
+Timestamp	timestamp_in(char *);
+char *		timestamp_out(Timestamp);
 
 #endif	/* __DATIZO_H__ */

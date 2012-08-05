@@ -8,6 +8,7 @@ int
 main(int argc, char *argv [])
 {
 	TimestampTz	 tsz;
+	Timestamp	 ts;
 	char		*s;
 
 	pg_timezone_initialize();
@@ -19,8 +20,12 @@ main(int argc, char *argv [])
 	*/
 
 	tsz = timestamptz_in("2012/1/1 00:20:01+05");
-
 	s = timestamptz_out(tsz);
+
+	warnx("s: %s", s);
+
+	ts = timestamp_in("2012/12/12 12:12:12");
+	s = timestamp_out(ts);
 
 	warnx("s: %s", s);
 
