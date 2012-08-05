@@ -1,6 +1,7 @@
 #ifndef	__DATIZO_H__
 #define	__DATIZO_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
 #include <limits.h>
@@ -133,6 +134,33 @@ typedef struct
 /* Julian-date equivalents of Day 0 in Unix and Postgres reckoning */
 #define UNIX_EPOCH_JDATE		2440588 /* == date2j(1970, 1, 1) */
 #define POSTGRES_EPOCH_JDATE	2451545 /* == date2j(2000, 1, 1) */
+
+/*******************************************************************************
+********************************************************************************
+**  src/include/utils/timestamp.h  *********************************************
+********************************************************************************
+*******************************************************************************/
+
+
+#define TIMESTAMP_MASK(b) (1 << (b))
+#define INTERVAL_MASK(b) (1 << (b))
+
+/* Macros to handle packing and unpacking the typmod field for intervals */
+#define INTERVAL_FULL_RANGE (0x7FFF)
+#define INTERVAL_RANGE_MASK (0x7FFF)
+#define INTERVAL_FULL_PRECISION (0xFFFF)
+#define INTERVAL_PRECISION_MASK (0xFFFF)
+#define INTERVAL_TYPMOD(p,r) ((((r) & INTERVAL_RANGE_MASK) << 16) | ((p) & INTERVAL_PRECISION_MASK))
+#define INTERVAL_PRECISION(t) ((t) & INTERVAL_PRECISION_MASK)
+#define INTERVAL_RANGE(t) (((t) >> 16) & INTERVAL_RANGE_MASK)
+
+#ifdef HAVE_INT64_TIMESTAMP
+#define TimestampTzPlusMilliseconds(tz,ms) ((tz) + ((ms) * (int64) 1000))
+#else
+#define TimestampTzPlusMilliseconds(tz,ms) ((tz) + ((ms) / 1000.0))
+#endif
+
+
 
 
 
@@ -371,6 +399,27 @@ extern const int day_tab[2][13];
 #define isleap(y) (((y) % 4) == 0 && (((y) % 100) != 0 || ((y) % 400) == 0))
 
 
+
+
+/*
+ * Definitions for squeezing values into "value"
+ * We set aside a high bit for a sign, and scale the timezone offsets
+ * in minutes by a factor of 15 (so can represent quarter-hour increments).
+ */
+#define ABS_SIGNBIT		((char) 0200)
+#define VALMASK			((char) 0177)
+#define POS(n)			(n)
+#define NEG(n)			((n)|ABS_SIGNBIT)
+#define SIGNEDCHAR(c)	((c)&ABS_SIGNBIT? -((c)&VALMASK): (c))
+#define FROMVAL(tp)		(-SIGNEDCHAR((tp)->value) * 15) /* uncompress */
+#define TOVAL(tp, v)	((tp)->value = ((v) < 0? NEG((-(v))/15): POS(v)/15))
+
+
+
+
+
+
+
 /*
  * Datetime input parsing routines (ParseDateTime, DecodeDateTime, etc)
  * return zero or a positive value on success.	On failure, they return
@@ -384,10 +433,111 @@ extern const int day_tab[2][13];
 #define DTERR_TZDISP_OVERFLOW	(-5)
 
 
+
+/*
+src/include/miscadmin.h
+*/
+
+/*
+ * Date/Time Configuration
+ *
+ * DateStyle defines the output formatting choice for date/time types:
+ *	USE_POSTGRES_DATES specifies traditional Postgres format
+ *	USE_ISO_DATES specifies ISO-compliant format
+ *	USE_SQL_DATES specifies Oracle/Ingres-compliant format
+ *	USE_GERMAN_DATES specifies German-style dd.mm/yyyy
+ *
+ * DateOrder defines the field order to be assumed when reading an
+ * ambiguous date (anything not in YYYY-MM-DD format, with a four-digit
+ * year field first, is taken to be ambiguous):
+ *	DATEORDER_YMD specifies field order yy-mm-dd
+ *	DATEORDER_DMY specifies field order dd-mm-yy ("European" convention)
+ *	DATEORDER_MDY specifies field order mm-dd-yy ("US" convention)
+ *
+ * In the Postgres and SQL DateStyles, DateOrder also selects output field
+ * order: day comes before month in DMY style, else month comes before day.
+ *
+ * The user-visible "DateStyle" run-time parameter subsumes both of these.
+ */
+
+/* valid DateStyle values */
+#define USE_POSTGRES_DATES		0
+#define USE_ISO_DATES			1
+#define USE_SQL_DATES			2
+#define USE_GERMAN_DATES		3
+#define USE_XSD_DATES			4
+
+/* valid DateOrder values */
+#define DATEORDER_YMD			0
+#define DATEORDER_DMY			1
+#define DATEORDER_MDY			2
+
+extern int	DateStyle;
+extern int	DateOrder;
+
+/*
+ * IntervalStyles
+ *	 INTSTYLE_POSTGRES			   Like Postgres < 8.4 when DateStyle = 'iso'
+ *	 INTSTYLE_POSTGRES_VERBOSE	   Like Postgres < 8.4 when DateStyle != 'iso'
+ *	 INTSTYLE_SQL_STANDARD		   SQL standard interval literals
+ *	 INTSTYLE_ISO_8601			   ISO-8601-basic formatted intervals
+ */
+#define INTSTYLE_POSTGRES			0
+#define INTSTYLE_POSTGRES_VERBOSE	1
+#define INTSTYLE_SQL_STANDARD		2
+#define INTSTYLE_ISO_8601			3
+
+extern int	IntervalStyle;
+
+/*
+ * HasCTZSet is true if user has set timezone as a numeric offset from UTC.
+ * If so, CTimeZone is the timezone offset in seconds (using the Unix-ish
+ * sign convention, ie, positive offset is west of UTC, rather than the
+ * SQL-ish convention that positive is east of UTC).
+ */
+extern bool HasCTZSet;
+extern int	CTimeZone;
+
+#define MAXTZLEN		10		/* max TZ name len, not counting tr. null */
+
+
+
+
+
+
+
+
+
+
+#ifndef TRUE
+#define TRUE    1
+#endif
+
+#ifndef FALSE
+#define FALSE   0
+#endif
+
+
 /* pgstrcasecmp.c */
 /* msb for char */
 #define HIGHBIT					(0x80)
 #define IS_HIGHBIT_SET(ch)		((unsigned char)(ch) & HIGHBIT)
+
+
+
+extern datetkn *timezonetktbl;
+extern int	sztimezonetktbl;
+extern int	szdatetktbl;
+extern int	szdeltatktbl;
+extern const datetkn *datecache[MAXDATEFIELDS];
+extern const datetkn *deltacache[MAXDATEFIELDS];
+
+
+extern const datetkn datetktbl[];
+
+
+
+
 
 int		pg_strcasecmp(const char *, const char *);
 int		pg_strncasecmp(const char *, const char *, size_t);
@@ -399,6 +549,19 @@ unsigned char	pg_ascii_tolower(unsigned char);
 /* datetime.c */
 int		strtoi(const char *, char **, int);
 
+const datetkn *	datebsearch(const char *, const datetkn *, int);
+
+int		ParseDateTime(const char *, char *, size_t, char **, int *, int, int *);
+int		DecodeDateTime(char **, int *, int, int *, struct tm *, fsec_t *, int *);
+int		DecodeDate(char *, int, int *, bool *, struct tm *);
+int		DecodeNumber(int, char *, bool, int, int *, struct tm *, fsec_t *, bool *);
+int		DecodeNumberField(int, char *, int, int *, struct tm *, fsec_t *, bool *);
+int		ParseFractionalSecond(char *, fsec_t *);
+int		DecodeTime(char *, int, int, int *, struct tm *, fsec_t *);
+int		DecodeSpecial(int, char *, int *);
+int		date2j(int, int, int);
+void		j2date(int, int *, int *, int *);
+int		ValidateDate(int, bool, bool, bool, struct tm *);
 
 
 #endif	/* __DATIZO_H__ */
