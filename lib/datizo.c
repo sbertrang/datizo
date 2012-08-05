@@ -36,3 +36,5 @@ char	   *days[] = {"Sunday", "Monday", "Tuesday", "Wednesday",
 
 int			DateStyle = USE_ISO_DATES;
 
+int			IntervalStyle = INTSTYLE_POSTGRES;
+

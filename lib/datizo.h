@@ -1113,6 +1113,7 @@ extern datetkn *timezonetktbl;
 extern int	sztimezonetktbl;
 extern int	szdatetktbl;
 extern int	szdeltatktbl;
+extern datetkn deltatktbl[];
 extern const datetkn *datecache[MAXDATEFIELDS];
 extern const datetkn *deltacache[MAXDATEFIELDS];
 
@@ -1215,5 +1216,23 @@ struct tm *	pg_gmtime(const pg_time_t *);
 TimeOffset	time2t(const int, const int, const int, const fsec_t);
 Timestamp	timestamp_in(char *);
 char *		timestamp_out(Timestamp);
+
+int		DecodeInterval(char **, int *, int, int, int *, struct tm *, fsec_t *);
+int		tm2interval(struct tm *, fsec_t, Interval *);
+int		DecodeISO8601Interval(char *, int *, struct tm *, fsec_t *);
+inline void	ClearPgTm(struct tm *, fsec_t *);
+void		AdjustFractDays(double, struct tm *, fsec_t *, int);
+void		AdjustFractSeconds(double, struct tm *, fsec_t *, int);
+int		ParseISO8601Number(char *, char **, int *, double *);
+int		ISO8601IntegerWidth(char *);
+int		interval2tm(Interval, struct tm *, fsec_t *);
+void		EncodeInterval(struct tm *, fsec_t, int, char *);
+
+char *		AddPostgresIntPart(char *, int, const char *, bool *, bool *);
+char *		AddISO8601IntPart(char *, int, char);
+char *		AddVerboseIntPart(char *, int, const char *, bool *, bool *);
+
+Interval *	interval_in(char *);
+char *		interval_out(Interval *);
 
 #endif	/* __DATIZO_H__ */
