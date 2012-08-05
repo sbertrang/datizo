@@ -6,6 +6,9 @@ SRCS +=		main.c
 MAN =
 
 
+CPPFLAGS +=	-I../lib
+LDADD +=	-L../lib -ldatizo
+
 run: ${PROG}
 	LD_LIBRARY_PATH=../lib ./${PROG}
 
