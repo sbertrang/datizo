@@ -1,0 +1,5 @@
+
+CDIAGFLAGS +=	-Wall
+DEBUG =		-g
+WARNINGS =	Yes
+
