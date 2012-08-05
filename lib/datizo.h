@@ -155,7 +155,7 @@ typedef struct
 #define INTERVAL_RANGE(t) (((t) >> 16) & INTERVAL_RANGE_MASK)
 
 #ifdef HAVE_INT64_TIMESTAMP
-#define TimestampTzPlusMilliseconds(tz,ms) ((tz) + ((ms) * (int64) 1000))
+#define TimestampTzPlusMilliseconds(tz,ms) ((tz) + ((ms) * (int64_t) 1000))
 #else
 #define TimestampTzPlusMilliseconds(tz,ms) ((tz) + ((ms) / 1000.0))
 #endif
@@ -400,6 +400,8 @@ extern const int day_tab[2][13];
 
 
 
+extern char	   *months[];
+extern char	   *days[];
 
 /*
  * Definitions for squeezing values into "value"
@@ -431,6 +433,352 @@ extern const int day_tab[2][13];
 #define DTERR_MD_FIELD_OVERFLOW (-3)	/* triggers hint about DateStyle */
 #define DTERR_INTERVAL_OVERFLOW (-4)
 #define DTERR_TZDISP_OVERFLOW	(-5)
+
+
+/*******************************************************************************
+********************************************************************************
+**  src/timezone/tzfile.h  *****************************************************
+********************************************************************************
+*******************************************************************************/
+
+/*
+ * Information about time zone files.
+ */
+
+#define TZDEFAULT	"localtime"
+#define TZDEFRULES	"posixrules"
+
+/*
+ * Each file begins with. . .
+ */
+
+#define TZ_MAGIC	"TZif"
+
+struct tzhead
+{
+	char		tzh_magic[4];	/* TZ_MAGIC */
+	char		tzh_version[1]; /* '\0' or '2' as of 2005 */
+	char		tzh_reserved[15];		/* reserved--must be zero */
+	char		tzh_ttisgmtcnt[4];		/* coded number of trans. time flags */
+	char		tzh_ttisstdcnt[4];		/* coded number of trans. time flags */
+	char		tzh_leapcnt[4]; /* coded number of leap seconds */
+	char		tzh_timecnt[4]; /* coded number of transition times */
+	char		tzh_typecnt[4]; /* coded number of local time types */
+	char		tzh_charcnt[4]; /* coded number of abbr. chars */
+};
+
+/*----------
+ * . . .followed by. . .
+ *
+ *	tzh_timecnt (char [4])s		coded transition times a la time(2)
+ *	tzh_timecnt (unsigned char)s	types of local time starting at above
+ *	tzh_typecnt repetitions of
+ *		one (char [4])		coded UTC offset in seconds
+ *		one (unsigned char) used to set tm_isdst
+ *		one (unsigned char) that's an abbreviation list index
+ *	tzh_charcnt (char)s		'\0'-terminated zone abbreviations
+ *	tzh_leapcnt repetitions of
+ *		one (char [4])		coded leap second transition times
+ *		one (char [4])		total correction after above
+ *	tzh_ttisstdcnt (char)s		indexed by type; if TRUE, transition
+ *					time is standard time, if FALSE,
+ *					transition time is wall clock time
+ *					if absent, transition times are
+ *					assumed to be wall clock time
+ *	tzh_ttisgmtcnt (char)s		indexed by type; if TRUE, transition
+ *					time is UTC, if FALSE,
+ *					transition time is local time
+ *					if absent, transition times are
+ *					assumed to be local time
+ *----------
+ */
+
+/*
+ * If tzh_version is '2' or greater, the above is followed by a second instance
+ * of tzhead and a second instance of the data in which each coded transition
+ * time uses 8 rather than 4 chars,
+ * then a POSIX-TZ-environment-variable-style string for use in handling
+ * instants after the last transition time stored in the file
+ * (with nothing between the newlines if there is no POSIX representation for
+ * such instants).
+ */
+
+/*
+ * In the current implementation, "tzset()" refuses to deal with files that
+ * exceed any of the limits below.
+ */
+
+#define TZ_MAX_TIMES	1200
+
+#define TZ_MAX_TYPES	256		/* Limited by what (unsigned char)'s can hold */
+
+#define TZ_MAX_CHARS	50		/* Maximum number of abbreviation characters */
+ /* (limited by what unsigned chars can hold) */
+
+#define TZ_MAX_LEAPS	50		/* Maximum number of leap second corrections */
+
+#define SECSPERMIN	60
+#define MINSPERHOUR 60
+#define HOURSPERDAY 24
+#define DAYSPERWEEK 7
+#define DAYSPERNYEAR	365
+#define DAYSPERLYEAR	366
+#define SECSPERHOUR (SECSPERMIN * MINSPERHOUR)
+#define SECSPERDAY	((long) SECSPERHOUR * HOURSPERDAY)
+#define MONSPERYEAR 12
+
+#define TM_SUNDAY	0
+#define TM_MONDAY	1
+#define TM_TUESDAY	2
+#define TM_WEDNESDAY	3
+#define TM_THURSDAY 4
+#define TM_FRIDAY	5
+#define TM_SATURDAY 6
+
+#define TM_JANUARY	0
+#define TM_FEBRUARY 1
+#define TM_MARCH	2
+#define TM_APRIL	3
+#define TM_MAY		4
+#define TM_JUNE		5
+#define TM_JULY		6
+#define TM_AUGUST	7
+#define TM_SEPTEMBER	8
+#define TM_OCTOBER	9
+#define TM_NOVEMBER 10
+#define TM_DECEMBER 11
+
+#define TM_YEAR_BASE	1900
+
+#define EPOCH_YEAR	1970
+#define EPOCH_WDAY	TM_THURSDAY
+
+#define isleap(y) (((y) % 4) == 0 && (((y) % 100) != 0 || ((y) % 400) == 0))
+
+/*
+ * Since everything in isleap is modulo 400 (or a factor of 400), we know that
+ *	  isleap(y) == isleap(y % 400)
+ * and so
+ *	  isleap(a + b) == isleap((a + b) % 400)
+ * or
+ *	  isleap(a + b) == isleap(a % 400 + b % 400)
+ * This is true even if % means modulo rather than Fortran remainder
+ * (which is allowed by C89 but not C99).
+ * We use this to avoid addition overflow problems.
+ */
+
+#define isleap_sum(a, b)	  isleap((a) % 400 + (b) % 400)
+
+
+/*******************************************************************************
+********************************************************************************
+**  src/include/pgtime.h  ******************************************************
+********************************************************************************
+*******************************************************************************/
+
+typedef int64_t pg_time_t;
+
+/* Maximum length of a timezone name (not including trailing null) */
+#define TZ_STRLEN_MAX 255
+
+
+
+
+
+
+/*******************************************************************************
+********************************************************************************
+**  src/timezone/pgtz.h  *******************************************************
+********************************************************************************
+*******************************************************************************/
+
+#define BIGGEST(a, b)	(((a) > (b)) ? (a) : (b))
+
+struct ttinfo
+{								/* time type information */
+	long		tt_gmtoff;		/* UTC offset in seconds */
+	int			tt_isdst;		/* used to set tm_isdst */
+	int			tt_abbrind;		/* abbreviation list index */
+	int			tt_ttisstd;		/* TRUE if transition is std time */
+	int			tt_ttisgmt;		/* TRUE if transition is UTC */
+};
+
+struct lsinfo
+{								/* leap second information */
+	pg_time_t	ls_trans;		/* transition time */
+	long		ls_corr;		/* correction to apply */
+};
+
+struct state
+{
+	int			leapcnt;
+	int			timecnt;
+	int			typecnt;
+	int			charcnt;
+	int			goback;
+	int			goahead;
+	pg_time_t	ats[TZ_MAX_TIMES];
+	unsigned char types[TZ_MAX_TIMES];
+	struct ttinfo ttis[TZ_MAX_TYPES];
+	char		chars[BIGGEST(BIGGEST(TZ_MAX_CHARS + 1, 3 /* sizeof gmt */ ),
+										  (2 * (TZ_STRLEN_MAX + 1)))];
+	struct lsinfo lsis[TZ_MAX_LEAPS];
+};
+
+
+struct pg_tz
+{
+	/* TZname contains the canonically-cased name of the timezone */
+	char		TZname[TZ_STRLEN_MAX + 1];
+	struct state state;
+};
+
+typedef struct pg_tz pg_tz;
+typedef struct pg_tzenum pg_tzenum;
+
+
+
+
+
+
+/*******************************************************************************
+********************************************************************************
+**  src/timezone/private.h  ****************************************************
+********************************************************************************
+*******************************************************************************/
+
+
+
+
+#ifndef TYPE_BIT
+#define TYPE_BIT(type)	(sizeof (type) * CHAR_BIT)
+#endif   /* !defined TYPE_BIT */
+
+#ifndef TYPE_SIGNED
+#define TYPE_SIGNED(type) (((type) -1) < 0)
+#endif   /* !defined TYPE_SIGNED */
+
+/*
+ * Since the definition of TYPE_INTEGRAL contains floating point numbers,
+ * it cannot be used in preprocessor directives.
+ */
+
+#ifndef TYPE_INTEGRAL
+#define TYPE_INTEGRAL(type) (((type) 0.5) != 0.5)
+#endif   /* !defined TYPE_INTEGRAL */
+
+#ifndef INT_STRLEN_MAXIMUM
+/*
+ * 302 / 1000 is log10(2.0) rounded up.
+ * Subtract one for the sign bit if the type is signed;
+ * add one for integer division truncation;
+ * add one more for a minus sign if the type is signed.
+ */
+#define INT_STRLEN_MAXIMUM(type) \
+	((TYPE_BIT(type) - TYPE_SIGNED(type)) * 302 / 1000 + 1 + TYPE_SIGNED(type))
+#endif   /* !defined INT_STRLEN_MAXIMUM */
+
+
+
+#ifndef YEARSPERREPEAT
+#define YEARSPERREPEAT			400		/* years before a Gregorian repeat */
+#endif   /* !defined YEARSPERREPEAT */
+
+/*
+** The Gregorian year averages 365.2425 days, which is 31556952 seconds.
+*/
+
+#ifndef AVGSECSPERYEAR
+#define AVGSECSPERYEAR			31556952L
+#endif   /* !defined AVGSECSPERYEAR */
+
+#ifndef SECSPERREPEAT
+#define SECSPERREPEAT			((int64_t) YEARSPERREPEAT * (int64_t) AVGSECSPERYEAR)
+#endif   /* !defined SECSPERREPEAT */
+
+#ifndef SECSPERREPEAT_BITS
+#define SECSPERREPEAT_BITS		34		/* ceil(log2(SECSPERREPEAT)) */
+#endif   /* !defined SECSPERREPEAT_BITS */
+
+
+
+
+
+
+extern pg_tz          *session_timezone;
+extern pg_tz          *log_timezone;
+
+
+
+/*******************************************************************************
+********************************************************************************
+**  src/timezone/localtime.c  **************************************************
+********************************************************************************
+*******************************************************************************/
+
+#ifndef WILDABBR
+/*----------
+ * Someone might make incorrect use of a time zone abbreviation:
+ *	1.	They might reference tzname[0] before calling tzset (explicitly
+ *		or implicitly).
+ *	2.	They might reference tzname[1] before calling tzset (explicitly
+ *		or implicitly).
+ *	3.	They might reference tzname[1] after setting to a time zone
+ *		in which Daylight Saving Time is never observed.
+ *	4.	They might reference tzname[0] after setting to a time zone
+ *		in which Standard Time is never observed.
+ *	5.	They might reference tm.TM_ZONE after calling offtime.
+ * What's best to do in the above cases is open to debate;
+ * for now, we just set things up so that in any of the five cases
+ * WILDABBR is used. Another possibility:	initialize tzname[0] to the
+ * string "tzname[0] used before set", and similarly for the other cases.
+ * And another: initialize tzname[0] to "ERA", with an explanation in the
+ * manual page of what this "time zone abbreviation" means (doing this so
+ * that tzname[0] has the "normal" length of three characters).
+ *----------
+ */
+#define WILDABBR	"   "
+#endif   /* !defined WILDABBR */
+
+extern char wildabbr[];
+extern const char gmt[];
+
+/*
+ * The DST rules to use if TZ has no rules and we can't load TZDEFRULES.
+ * We default to US rules as of 1999-08-17.
+ * POSIX 1003.1 section 8.1.1 says that the default DST rules are
+ * implementation dependent; for historical reasons, US rules are a
+ * common default.
+ */
+#define TZDEFRULESTRING ",M4.1.0,M10.5.0"
+
+struct rule
+{
+	int			r_type;			/* type of rule--see below */
+	int			r_day;			/* day number of rule */
+	int			r_week;			/* week number of rule */
+	int			r_mon;			/* month number of rule */
+	long		r_time;			/* transition time of rule */
+};
+
+#define JULIAN_DAY		0		/* Jn - Julian day */
+#define DAY_OF_YEAR		1		/* n - day of year */
+#define MONTH_NTH_DAY_OF_WEEK	2		/* Mm.n.d - month, week, day of week */
+
+
+
+extern const int mon_lengths[2][MONSPERYEAR];
+
+extern const int year_lengths[2];
+
+
+
+
+
+
+
+
+
 
 
 
@@ -502,6 +850,35 @@ extern int	CTimeZone;
 
 
 
+/*
+ * We keep loaded timezones in a hashtable so we don't have to
+ * load and parse the TZ definition file every time one is selected.
+ * Because we want timezone names to be found case-insensitively,
+ * the hash key is the uppercased name of the zone.
+ */
+typedef struct
+{
+	/* tznameupper contains the all-upper-case name of the timezone */
+	char		tznameupper[TZ_STRLEN_MAX + 1];
+	pg_tz		tz;
+} pg_tz_cache;
+
+#include "hsearch.h"
+
+extern HTAB *timezone_cache;
+
+
+
+
+
+/*
+
+src/include/utils/hsearch.h
+*/
+
+
+
+
 
 
 
@@ -516,6 +893,213 @@ extern int	CTimeZone;
 #ifndef FALSE
 #define FALSE   0
 #endif
+
+
+/*
+tmp/postgresql-9.2beta2/src/include/pg_config.h
+*/
+#define MAXIMUM_ALIGNOF 4
+#define MEMSET_LOOP_LIMIT 1024
+
+
+
+
+/* c.h */
+
+#define is_digit(c) ((unsigned)(c) - '0' <= 9)
+
+/*
+ * offsetof
+ *		Offset of a structure/union field within that structure/union.
+ *
+ *		XXX This is supposed to be part of stddef.h, but isn't on
+ *		some systems (like SunOS 4).
+ */
+#ifndef offsetof
+#define offsetof(type, field)	((long) &((type *)0)->field)
+#endif   /* offsetof */
+
+/*
+ * lengthof
+ *		Number of elements in an array.
+ */
+#define lengthof(array) (sizeof (array) / sizeof ((array)[0]))
+
+/*
+ * endof
+ *		Address of the element one past the last in an array.
+ */
+#define endof(array)	(&(array)[lengthof(array)])
+
+
+
+#define TYPEALIGN(ALIGNVAL,LEN)  \
+	(((intptr_t) (LEN) + ((ALIGNVAL) - 1)) & ~((intptr_t) ((ALIGNVAL) - 1)))
+
+#define SHORTALIGN(LEN)			TYPEALIGN(ALIGNOF_SHORT, (LEN))
+#define INTALIGN(LEN)			TYPEALIGN(ALIGNOF_INT, (LEN))
+#define LONGALIGN(LEN)			TYPEALIGN(ALIGNOF_LONG, (LEN))
+#define DOUBLEALIGN(LEN)		TYPEALIGN(ALIGNOF_DOUBLE, (LEN))
+#define MAXALIGN(LEN)			TYPEALIGN(MAXIMUM_ALIGNOF, (LEN))
+/* MAXALIGN covers only built-in types, not buffers */
+#define BUFFERALIGN(LEN)		TYPEALIGN(ALIGNOF_BUFFER, (LEN))
+
+#define TYPEALIGN_DOWN(ALIGNVAL,LEN)  \
+	(((intptr_t) (LEN)) & ~((intptr_t) ((ALIGNVAL) - 1)))
+
+#define SHORTALIGN_DOWN(LEN)	TYPEALIGN_DOWN(ALIGNOF_SHORT, (LEN))
+#define INTALIGN_DOWN(LEN)		TYPEALIGN_DOWN(ALIGNOF_INT, (LEN))
+#define LONGALIGN_DOWN(LEN)		TYPEALIGN_DOWN(ALIGNOF_LONG, (LEN))
+#define DOUBLEALIGN_DOWN(LEN)	TYPEALIGN_DOWN(ALIGNOF_DOUBLE, (LEN))
+#define MAXALIGN_DOWN(LEN)		TYPEALIGN_DOWN(MAXIMUM_ALIGNOF, (LEN))
+
+/* ----------------------------------------------------------------
+ *				Section 6:	widely useful macros
+ * ----------------------------------------------------------------
+ */
+/*
+ * Max
+ *		Return the maximum of two numbers.
+ */
+#define Max(x, y)		((x) > (y) ? (x) : (y))
+
+/*
+ * Min
+ *		Return the minimum of two numbers.
+ */
+#define Min(x, y)		((x) < (y) ? (x) : (y))
+
+/*
+ * Abs
+ *		Return the absolute value of the argument.
+ */
+#define Abs(x)			((x) >= 0 ? (x) : -(x))
+
+/*
+ * StrNCpy
+ *	Like standard library function strncpy(), except that result string
+ *	is guaranteed to be null-terminated --- that is, at most N-1 bytes
+ *	of the source string will be kept.
+ *	Also, the macro returns no result (too hard to do that without
+ *	evaluating the arguments multiple times, which seems worse).
+ *
+ *	BTW: when you need to copy a non-null-terminated string (like a text
+ *	datum) and add a null, do not do it with StrNCpy(..., len+1).  That
+ *	might seem to work, but it fetches one byte more than there is in the
+ *	text object.  One fine day you'll have a SIGSEGV because there isn't
+ *	another byte before the end of memory.	Don't laugh, we've had real
+ *	live bug reports from real live users over exactly this mistake.
+ *	Do it honestly with "memcpy(dst,src,len); dst[len] = '\0';", instead.
+ */
+#define StrNCpy(dst,src,len) \
+	do \
+	{ \
+		char * _dst = (dst); \
+		size_t _len = (len); \
+\
+		if (_len > 0) \
+		{ \
+			strncpy(_dst, (src), _len); \
+			_dst[_len-1] = '\0'; \
+		} \
+	} while (0)
+
+
+/* Get a bit mask of the bits set in non-long aligned addresses */
+#define LONG_ALIGN_MASK (sizeof(long) - 1)
+
+/*
+ * MemSet
+ *	Exactly the same as standard library function memset(), but considerably
+ *	faster for zeroing small word-aligned structures (such as parsetree nodes).
+ *	This has to be a macro because the main point is to avoid function-call
+ *	overhead.	However, we have also found that the loop is faster than
+ *	native libc memset() on some platforms, even those with assembler
+ *	memset() functions.  More research needs to be done, perhaps with
+ *	MEMSET_LOOP_LIMIT tests in configure.
+ */
+#define MemSet(start, val, len) \
+	do \
+	{ \
+		/* must be void* because we don't know if it is integer aligned yet */ \
+		void   *_vstart = (void *) (start); \
+		int		_val = (val); \
+		size_t	_len = (len); \
+\
+		if ((((intptr_t) _vstart) & LONG_ALIGN_MASK) == 0 && \
+			(_len & LONG_ALIGN_MASK) == 0 && \
+			_val == 0 && \
+			_len <= MEMSET_LOOP_LIMIT && \
+			/* \
+			 *	If MEMSET_LOOP_LIMIT == 0, optimizer should find \
+			 *	the whole "if" false at compile time. \
+			 */ \
+			MEMSET_LOOP_LIMIT != 0) \
+		{ \
+			long *_start = (long *) _vstart; \
+			long *_stop = (long *) ((char *) _start + _len); \
+			while (_start < _stop) \
+				*_start++ = 0; \
+		} \
+		else \
+			memset(_vstart, _val, _len); \
+	} while (0)
+
+/*
+ * MemSetAligned is the same as MemSet except it omits the test to see if
+ * "start" is word-aligned.  This is okay to use if the caller knows a-priori
+ * that the pointer is suitably aligned (typically, because he just got it
+ * from palloc(), which always delivers a max-aligned pointer).
+ */
+#define MemSetAligned(start, val, len) \
+	do \
+	{ \
+		long   *_start = (long *) (start); \
+		int		_val = (val); \
+		size_t	_len = (len); \
+\
+		if ((_len & LONG_ALIGN_MASK) == 0 && \
+			_val == 0 && \
+			_len <= MEMSET_LOOP_LIMIT && \
+			MEMSET_LOOP_LIMIT != 0) \
+		{ \
+			long *_stop = (long *) ((char *) _start + _len); \
+			while (_start < _stop) \
+				*_start++ = 0; \
+		} \
+		else \
+			memset(_start, _val, _len); \
+	} while (0)
+
+
+/*
+ * MemSetTest/MemSetLoop are a variant version that allow all the tests in
+ * MemSet to be done at compile time in cases where "val" and "len" are
+ * constants *and* we know the "start" pointer must be word-aligned.
+ * If MemSetTest succeeds, then it is okay to use MemSetLoop, otherwise use
+ * MemSetAligned.  Beware of multiple evaluations of the arguments when using
+ * this approach.
+ */
+#define MemSetTest(val, len) \
+	( ((len) & LONG_ALIGN_MASK) == 0 && \
+	(len) <= MEMSET_LOOP_LIMIT && \
+	MEMSET_LOOP_LIMIT != 0 && \
+	(val) == 0 )
+
+#define MemSetLoop(start, val, len) \
+	do \
+	{ \
+		long * _start = (long *) (start); \
+		long * _stop = (long *) ((char *) _start + (size_t) (len)); \
+	\
+		while (_start < _stop) \
+			*_start++ = 0; \
+	} while (0)
+
+
+
+
+
 
 
 /* pgstrcasecmp.c */
@@ -562,6 +1146,72 @@ int		DecodeSpecial(int, char *, int *);
 int		date2j(int, int, int);
 void		j2date(int, int *, int *, int *);
 int		ValidateDate(int, bool, bool, bool, struct tm *);
+int		DecodeTimezone(char *, int *);
+int		pg_next_dst_boundary(const pg_time_t *, long int *, int *, pg_time_t *, long int *, int *, const pg_tz *);
 
+
+void		pg_timezone_initialize(void);
+pg_tz *		pg_tzset(const char *);
+
+const char *	getzname(const char *);
+const char *	getqzname(const char *, int);
+const char *	getoffset(const char *, long *);
+const char *	getrule(const char *, struct rule *);
+const char *	getnum(const char *, int *, int, int);
+const char *	getsecs(const char *, long *);
+pg_time_t	transtime(pg_time_t, int, const struct rule *, long);
+int		tzload(const char *, char *, struct state *, int);
+int		tzparse(const char *, struct state *, int);
+int		typesequiv(const struct state *, int, int);
+int		differ_by_repeat(pg_time_t, pg_time_t);
+int		pg_open_tzfile(const char *, char *);
+
+const char *	pg_TZDIR(void);
+bool		scan_directory_ci(const char *, const char *, int, char *, int);
+long		detzcode(const char *);
+pg_time_t	detzcode64(const char *);
+
+uint32_t	hash_any(register const unsigned char *, register int);
+
+void		dt2time(Timestamp, int *, int *, int *, fsec_t *);
+
+struct tm *	localsub(const pg_time_t *, long, struct tm *, const pg_tz *);
+
+struct tm *	timesub(const pg_time_t *, long, const struct state *, struct tm *);
+
+int		leaps_thru_end_of(const int);
+
+int		timestamp2tm(Timestamp, int *, struct tm *, fsec_t *, const char **, pg_tz *);
+bool		init_timezone_hashtable(void);
+int		increment_overflow(int *, int);
+struct tm *	pg_localtime(const pg_time_t *, const pg_tz *);
+
+int		tm2timestamp(struct tm *, fsec_t, int *, Timestamp *);
+
+void		gmtload(struct state *);
+Timestamp	SetEpochTimestamp(void);
+
+void		GetCurrentDateTime(struct tm *);
+
+void		GetCurrentTimeUsec(struct tm *, fsec_t *, int *);
+
+
+TimestampTz	timestamptz_in(char *);
+void		EncodeTimezone(char *, int, int);
+void		AppendTimestampSeconds(char *, struct tm *, fsec_t);
+void		AppendSeconds(char *, int, fsec_t, int, bool);
+void		TrimTrailingZeros(char *);
+int		j2day(int);
+char *		timestamptz_out(TimestampTz);
+void		EncodeDateTime(struct tm *, fsec_t, bool, int, const char *, int, char *);
+void		EncodeSpecialTimestamp(Timestamp, char *);
+void		AdjustTimestampForTypmod(Timestamp *, int32_t);
+int		DetermineTimeZoneOffset(struct tm *, pg_tz *);
+void		DateTimeParseError(int, const char *, const char *);
+void		GetEpochTime(struct tm *);
+Timestamp	dt2local(Timestamp, int);
+struct tm *	gmtsub(const pg_time_t *, long, struct tm *);
+struct tm *	pg_gmtime(const pg_time_t *);
+TimeOffset	time2t(const int, const int, const int, const fsec_t);
 
 #endif	/* __DATIZO_H__ */
