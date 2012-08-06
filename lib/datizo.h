@@ -1227,6 +1227,8 @@ int		ParseISO8601Number(char *, char **, int *, double *);
 int		ISO8601IntegerWidth(char *);
 int		interval2tm(Interval, struct tm *, fsec_t *);
 void		EncodeInterval(struct tm *, fsec_t, int, char *);
+int		DecodeUnits(int, char *, int *);
+void		AdjustIntervalForTypmod(Interval *, int32_t);
 
 char *		AddPostgresIntPart(char *, int, const char *, bool *, bool *);
 char *		AddISO8601IntPart(char *, int, char);
