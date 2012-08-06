@@ -19,9 +19,7 @@ main(int argc, char *argv [])
 
 	warnx("test...");
 
-	/*
-	pg_tzset("Europe/Amsterdam");
-	*/
+	session_timezone = pg_tzset("Europe/Amsterdam");
 
 	tsz = timestamptz_in("2012/1/1 00:20:01+05");
 	s = timestamptz_out(tsz);
