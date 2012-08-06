@@ -11,7 +11,8 @@ main(int argc, char *argv [])
 	Timestamp	 ts;
 	Interval	*i;
 	char		*s;
-	DateADT		 dt;
+	DateADT		 d;
+	TimeADT		 t;
 
 	pg_timezone_initialize();
 
@@ -36,10 +37,16 @@ main(int argc, char *argv [])
 
 	warnx("interval: %s", s);
 
-	dt = date_in("1999/9/9");
-	s = date_out(dt);
+	d = date_in("1999/9/9");
+	s = date_out(d);
 
 	warnx("date: %s", s);
+
+
+	t = time_in("10:20");
+	s = time_out(t);
+
+	warnx("time: %s", s);
 
 	return EX_OK;
 }
