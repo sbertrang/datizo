@@ -1315,6 +1315,17 @@ char *		date_out(DateADT);
 
 void		EncodeSpecialDate(DateADT, char *);
 void		EncodeDateOnly(struct tm *, int, char *);
+int		time2tm(TimeADT, struct tm *, fsec_t *);
+int		tm2time(struct tm *, fsec_t, TimeADT *);
+
+void		AdjustTimeForTypmod(TimeADT *, int32_t);
+int		DecodeTimeOnly(char **, int *, int, int *, struct tm *, fsec_t *, int *);
+void		EncodeTimeOnly(struct tm *, fsec_t, bool, int, int, char *);
+bool		pg_get_timezone_offset(const pg_tz *, long int *);
+
+char *		time_out(TimeADT);
+TimeADT		time_in(char *);
+
 
 
 #endif	/* __DATIZO_H__ */
