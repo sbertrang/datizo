@@ -12,7 +12,8 @@ main(int argc, char *argv [])
 	Interval	*i;
 	char		*s;
 	DateADT		 d;
-	TimeADT		 t;
+	TimeADT		 time;
+	TimeTzADT	*timetz;
 
 	pg_timezone_initialize();
 
@@ -43,10 +44,16 @@ main(int argc, char *argv [])
 	warnx("date: %s", s);
 
 
-	t = time_in("10:20");
-	s = time_out(t);
+	time = time_in("10:20");
+	s = time_out(time);
 
 	warnx("time: %s", s);
+
+	timetz = timetz_in("10:20");
+	s = timetz_out(timetz);
+
+	warnx("timetz: %s", s);
+
 
 	return EX_OK;
 }

@@ -107,6 +107,12 @@ SRCS +=		DecodeTimeOnly.c
 SRCS +=		EncodeTimeOnly.c
 SRCS +=		pg_get_timezone_offset.c
 
+# timetz
+SRCS +=		timetz_in.c
+SRCS +=		timetz_out.c
+SRCS +=		tm2timetz.c
+SRCS +=		timetz2tm.c
+
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0
 

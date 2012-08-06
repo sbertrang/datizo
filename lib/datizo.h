@@ -1328,4 +1328,10 @@ TimeADT		time_in(char *);
 
 
 
+TimeTzADT *	timetz_in(char *);
+char *		timetz_out(TimeTzADT *);
+int		tm2timetz(struct tm *, fsec_t, int, TimeTzADT *);
+int		timetz2tm(TimeTzADT *, struct tm *, fsec_t *, int *);
+
+
 #endif	/* __DATIZO_H__ */
