@@ -37,5 +37,3 @@ DecodeUnits(int field, char *lowtoken, int *val)
 	return type;
 }	/* DecodeUnits() */
 
-
-

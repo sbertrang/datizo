@@ -1121,6 +1121,68 @@ extern const datetkn *deltacache[MAXDATEFIELDS];
 extern const datetkn datetktbl[];
 
 
+/*******************************************************************************
+********************************************************************************
+**  src/include/utils/date.h  **************************************************
+********************************************************************************
+*******************************************************************************/
+
+typedef int32_t DateADT;
+
+#ifdef HAVE_INT64_TIMESTAMP
+typedef int64_t TimeADT;
+#else
+typedef double TimeADT;
+#endif
+
+
+
+typedef struct
+{
+	TimeADT		time;			/* all time units other than months and years */
+	int32_t		zone;			/* numeric time zone, in seconds */
+} TimeTzADT;
+
+/*
+ * Infinity and minus infinity must be the max and min values of DateADT.
+ * We could use INT_MIN and INT_MAX here, but seems better to not assume that
+ * int32 == int.
+ */
+#define DATEVAL_NOBEGIN		((DateADT) (-0x7fffffff - 1))
+#define DATEVAL_NOEND		((DateADT) 0x7fffffff)
+
+#define DATE_NOBEGIN(j)		((j) = DATEVAL_NOBEGIN)
+#define DATE_IS_NOBEGIN(j)	((j) == DATEVAL_NOBEGIN)
+#define DATE_NOEND(j)		((j) = DATEVAL_NOEND)
+#define DATE_IS_NOEND(j)	((j) == DATEVAL_NOEND)
+#define DATE_NOT_FINITE(j)	(DATE_IS_NOBEGIN(j) || DATE_IS_NOEND(j))
+
+/*
+ * Macros for fmgr-callable functions.
+ *
+ * For TimeADT, we make use of the same support routines as for float8 or int64.
+ * Therefore TimeADT is pass-by-reference if and only if float8 or int64 is!
+ */
+#ifdef HAVE_INT64_TIMESTAMP
+
+#define MAX_TIME_PRECISION 6
+#else							/* !HAVE_INT64_TIMESTAMP */
+
+#define MAX_TIME_PRECISION 10
+
+/* round off to MAX_TIME_PRECISION decimal places */
+#define TIME_PREC_INV 10000000000.0
+#define TIMEROUND(j) (rint(((double) (j)) * TIME_PREC_INV) / TIME_PREC_INV)
+#endif   /* HAVE_INT64_TIMESTAMP */
+
+
+
+
+/*******************************************************************************
+********************************************************************************
+**  function declarations  *****************************************************
+********************************************************************************
+*******************************************************************************/
 
 
 
@@ -1236,5 +1298,13 @@ char *		AddVerboseIntPart(char *, int, const char *, bool *, bool *);
 
 Interval *	interval_in(char *);
 char *		interval_out(Interval *);
+
+
+DateADT		date_in(char *);
+char *		date_out(DateADT);
+
+void		EncodeSpecialDate(DateADT, char *);
+void		EncodeDateOnly(struct tm *, int, char *);
+
 
 #endif	/* __DATIZO_H__ */

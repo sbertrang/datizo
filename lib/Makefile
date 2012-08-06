@@ -91,6 +91,12 @@ SRCS +=		EncodeSpecialTimestamp.c
 SRCS +=		EncodeDateTime.c
 SRCS +=		timestamptz_out.c
 
+# date
+SRCS +=		date_in.c
+SRCS +=		date_out.c
+SRCS +=		EncodeDateOnly
+SRCS +=		EncodeSpecialDate
+
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0
 
