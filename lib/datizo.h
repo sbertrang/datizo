@@ -895,11 +895,21 @@ src/include/utils/hsearch.h
 #endif
 
 
-/*
-tmp/postgresql-9.2beta2/src/include/pg_config.h
-*/
+/*******************************************************************************
+********************************************************************************
+**  src/include/pg_config.h  ***************************************************
+********************************************************************************
+*******************************************************************************/
+
+/* Define as the maximum alignment requirement of any C data type. */
 #define MAXIMUM_ALIGNOF 4
+
+/* Define bytes to use libc memset(). */
 #define MEMSET_LOOP_LIMIT 1024
+
+/* Define to 1 if you want 64-bit integer timestamp and interval support.
+   (--enable-integer-datetimes) */
+#define USE_INTEGER_DATETIMES 1
 
 
 
