@@ -4,8 +4,7 @@
 void
 AdjustTimestampForTypmod(Timestamp *time, int32_t typmod)
 {
-/* #ifdef HAVE_INT64_TIMESTAMP */
-#if 1
+#ifdef HAVE_INT64_TIMESTAMP
 	static const int64_t TimestampScales[MAX_TIMESTAMP_PRECISION + 1] = {
 		INT64CONST(1000000),
 		INT64CONST(100000),
