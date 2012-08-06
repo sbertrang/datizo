@@ -212,4 +212,3 @@ AdjustIntervalForTypmod(Interval *interval, int32_t typmod)
 	}
 }
 
-
