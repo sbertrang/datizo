@@ -97,6 +97,16 @@ SRCS +=		date_out.c
 SRCS +=		EncodeDateOnly
 SRCS +=		EncodeSpecialDate
 
+# time
+SRCS +=		time_in.c
+SRCS +=		time_out.c
+SRCS +=		time2tm.c
+SRCS +=		tm2time.c
+SRCS +=		AdjustTimeForTypmod.c
+SRCS +=		DecodeTimeOnly.c
+SRCS +=		EncodeTimeOnly.c
+SRCS +=		pg_get_timezone_offset.c
+
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0
 
