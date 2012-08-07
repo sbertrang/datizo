@@ -94,8 +94,8 @@ SRCS +=		timestamptz_out.c
 # date
 SRCS +=		date_in.c
 SRCS +=		date_out.c
-SRCS +=		EncodeDateOnly
-SRCS +=		EncodeSpecialDate
+SRCS +=		EncodeDateOnly.c
+SRCS +=		EncodeSpecialDate.c
 
 # time
 SRCS +=		time_in.c
