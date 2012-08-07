@@ -113,6 +113,8 @@ SRCS +=		timetz_out.c
 SRCS +=		tm2timetz.c
 SRCS +=		timetz2tm.c
 
+SRCS +=		GetCurrentTimestamp.c
+
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0
 

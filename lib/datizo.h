@@ -1334,4 +1334,6 @@ int		tm2timetz(struct tm *, fsec_t, int, TimeTzADT *);
 int		timetz2tm(TimeTzADT *, struct tm *, fsec_t *, int *);
 
 
+TimestampTz	GetCurrentTimestamp(void);
+
 #endif	/* __DATIZO_H__ */

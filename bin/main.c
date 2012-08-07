@@ -52,6 +52,11 @@ main(int argc, char *argv [])
 
 	warnx("timetz: %s", s);
 
+	tsz = GetCurrentTimestamp();
+	s = timestamptz_out(tsz);
+
+	warnx("timestamptz: %s", s);
+
 
 	return EX_OK;
 }
