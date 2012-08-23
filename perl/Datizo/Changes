@@ -1,0 +1,6 @@
+Revision history for Perl extension Datizo.
+
+0.01  Thu Aug 23 21:29:44 2012
+	- original version; created by h2xs 1.23 with options
+		--skip-ppport -An Datizo
+

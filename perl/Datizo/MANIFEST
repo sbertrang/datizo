@@ -1,0 +1,7 @@
+Changes
+Datizo.xs
+Makefile.PL
+MANIFEST
+README
+t/Datizo.t
+lib/Datizo.pm
