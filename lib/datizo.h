@@ -1336,4 +1336,7 @@ int		timetz2tm(TimeTzADT *, struct tm *, fsec_t *, int *);
 
 TimestampTz	GetCurrentTimestamp(void);
 
+Interval *	interval_justify_interval(Interval *);
+
+
 #endif	/* __DATIZO_H__ */

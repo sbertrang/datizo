@@ -36,6 +36,14 @@ main(int argc, char *argv [])
 
 	warnx("interval: %s", s);
 
+
+
+	i = interval_in("1000000 hours");
+	s = interval_out(interval_justify_interval(i));
+
+	warnx("lifetime: %s", s);
+
+
 	d = date_in("1999/9/9");
 	s = date_out(d);
 

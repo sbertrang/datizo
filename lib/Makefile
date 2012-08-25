@@ -116,6 +116,7 @@ SRCS +=		timetz2tm.c
 SRCS +=		GetCurrentTimestamp.c
 
 SRCS +=		timestamptz_pl_interval.c
+SRCS +=		interval_justify_interval.c
 
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0
