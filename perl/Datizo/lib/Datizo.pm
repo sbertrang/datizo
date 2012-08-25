@@ -1,40 +1,41 @@
 package Datizo;
 
-use 5.012002;
 use strict;
 use warnings;
-
-require Exporter;
-
-our @ISA = qw(Exporter);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Datizo ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
 
 our $VERSION = '0.01';
 
 require XSLoader;
+
 XSLoader::load('Datizo', $VERSION);
 
-# Preloaded methods go here.
+1;
+
+package Datizo::TimestampTz;
+
+use strict;
+use warnings;
+use overload '""' => \&Datizo::TimestampTz::to_string;
 
 1;
+
+package Datizo::Timezone;
+
+use strict;
+use warnings;
+use overload '""' => \&Datizo::Timezone::to_string;
+
+1;
+
+package Datizo::Interval;
+
+use strict;
+use warnings;
+use overload '""' => \&Datizo::Interval::to_string;
+
+1;
+
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
