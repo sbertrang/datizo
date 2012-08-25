@@ -117,6 +117,8 @@ SRCS +=		GetCurrentTimestamp.c
 
 SRCS +=		timestamptz_pl_interval.c
 SRCS +=		interval_justify_interval.c
+SRCS +=		interval_justify_hours.c
+SRCS +=		interval_justify_days.c
 
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0

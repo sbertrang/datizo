@@ -1337,6 +1337,7 @@ int		timetz2tm(TimeTzADT *, struct tm *, fsec_t *, int *);
 TimestampTz	GetCurrentTimestamp(void);
 
 Interval *	interval_justify_interval(Interval *);
-
+Interval *	interval_justify_days(Interval *);
+Interval *	interval_justify_hours(Interval *);
 
 #endif	/* __DATIZO_H__ */
