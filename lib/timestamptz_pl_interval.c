@@ -1,4 +1,5 @@
 
+#include <errno.h>
 #include <string.h>
 #include <time.h>
 
@@ -57,6 +58,7 @@ timestamptz_pl_interval(TimestampTz timestamp, Interval *span)
 			tz = DetermineTimeZoneOffset(tm, session_timezone);
 
 			if (tm2timestamp(tm, fsec, &tz, &timestamp) != 0) {
+				errno = ERANGE;
 				warnx("timestamp out of range");
 				return NULL;
 			}
@@ -70,6 +72,7 @@ timestamptz_pl_interval(TimestampTz timestamp, Interval *span)
 			int			julian;
 
 			if (timestamp2tm(timestamp, &tz, tm, &fsec, NULL, NULL) != 0) {
+				errno = ERANGE;
 				warnx("timestamp out of range");
 				return NULL;
 			}
@@ -81,6 +84,7 @@ timestamptz_pl_interval(TimestampTz timestamp, Interval *span)
 			tz = DetermineTimeZoneOffset(tm, session_timezone);
 
 			if (tm2timestamp(tm, fsec, &tz, &timestamp) != 0) {
+				errno = ERANGE;
 				warnx("timestamp out of range");
 				return NULL;
 			}

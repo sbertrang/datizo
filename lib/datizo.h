@@ -8,14 +8,36 @@
 #include <float.h>
 #include <time.h>
 
+/* Define to 1 if you want 64-bit integer timestamp and interval support.
+   (--enable-integer-datetimes) */
+#define USE_INTEGER_DATETIMES 1
+
+/* Select timestamp representation (float8 or int64) */
+#ifdef USE_INTEGER_DATETIMES
+#define HAVE_INT64_TIMESTAMP
+#endif
+
+
 /*******************************************************************************
 ********************************************************************************
 **  src/include/c.h  ***********************************************************
 ********************************************************************************
 *******************************************************************************/
 
+/* Define to 1 if constants of type 'long long int' should have the suffix LL.
+ */
+#define HAVE_LL_CONSTANTS 1
+
+
+/* Decide if we need to decorate 64-bit constants */
+#ifdef HAVE_LL_CONSTANTS
+#define INT64CONST(x)  ((int64_t) x##LL)
+#define UINT64CONST(x) ((uint64_t) x##ULL)
+#else
 #define INT64CONST(x)  ((int64_t) x)
 #define UINT64CONST(x) ((uint64_t) x)
+#endif
+
 
 
 /*******************************************************************************
@@ -1339,5 +1361,7 @@ TimestampTz	GetCurrentTimestamp(void);
 Interval *	interval_justify_interval(Interval *);
 Interval *	interval_justify_days(Interval *);
 Interval *	interval_justify_hours(Interval *);
+
+TimestampTz	timestamptz_pl_interval(TimestampTz, Interval *);
 
 #endif	/* __DATIZO_H__ */

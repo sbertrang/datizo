@@ -7,7 +7,7 @@
 int
 main(int argc, char *argv [])
 {
-	TimestampTz	 tsz;
+	TimestampTz	 tsz, eol;
 	Timestamp	 ts;
 	Interval	*i;
 	char		*s;
@@ -63,7 +63,13 @@ main(int argc, char *argv [])
 	tsz = GetCurrentTimestamp();
 	s = timestamptz_out(tsz);
 
-	warnx("timestamptz: %s", s);
+	warnx("timestamptz: %s (now)", s);
+
+
+	eol = timestamptz_pl_interval(tsz, interval_justify_interval(i));
+	s = timestamptz_out(eol);
+
+	warnx("eol: %s", s);
 
 
 	return EX_OK;
