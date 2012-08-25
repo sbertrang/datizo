@@ -60,9 +60,15 @@ OUTPUT:
 	RETVAL
 
 Datizo_Interval
-justify(Datizo_Interval span)
+justify(Datizo_Interval span, const char *type = "interval")
+PROTOTYPE: $;$
 CODE:
-	RETVAL = interval_justify_interval(span);
+	if (type == NULL || *type == 'i' || *type == 'I')
+		RETVAL = interval_justify_interval(span);
+	else if (*type == 'h' || *type == 'H')
+		RETVAL = interval_justify_hours(span);
+	else if (*type == 'd' || *type == 'd')
+		RETVAL = interval_justify_days(span);
 OUTPUT:
 	RETVAL
 

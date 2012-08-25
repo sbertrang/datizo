@@ -32,5 +32,12 @@ warn "then: $then ($now+$span)\n";
 
 my $lifetime = Datizo::Interval->parse( "1000000 hours" );
 
-warn "lifetime: " . $lifetime->justify() . "\n";
+warn "lifetime->justify: " . $lifetime->justify() . "\n";
+warn "lifetime->justify(hours): " . $lifetime->justify('hours') . "\n";
+warn "lifetime->justify(days): " . $lifetime->justify('days') . "\n";
+
+
+my $endoflife = $now->add( my $lt = Datizo::Interval->parse("50 years") );
+
+warn "endoflife: $endoflife ($now+$lt)\n";
 
