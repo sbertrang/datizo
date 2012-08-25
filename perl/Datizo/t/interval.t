@@ -37,7 +37,7 @@ warn "lifetime->justify(hours): " . $lifetime->justify('hours') . "\n";
 warn "lifetime->justify(days): " . $lifetime->justify('days') . "\n";
 
 
-my $endoflife = $now->add( my $lt = Datizo::Interval->parse("50 years") );
+my $endoflife = $now->add( my $lt = Datizo::Interval->parse("200 years") );
 
 warn "endoflife: $endoflife ($now+$lt)\n";
 
