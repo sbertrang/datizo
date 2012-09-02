@@ -11,5 +11,6 @@ WriteMakefile(
     DEFINE            => '',
     INC               => '-I../../lib',
     # OBJECT            => '$(O_FILES)',
+    OPTIMIZE          => '-g',
 );
 
