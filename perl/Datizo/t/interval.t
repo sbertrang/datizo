@@ -37,8 +37,8 @@ warn "lifetime->justify(hours): " . $lifetime->justify('hours') . "\n";
 warn "lifetime->justify(days): " . $lifetime->justify('days') . "\n";
 
 
-my $endoflife = $now->add( my $lt = Datizo::Interval->parse("200 years") );
+my $endoflife = $now->add( $lifetime );
 
-warn "endoflife: $endoflife ($now+$lt)\n";
+warn "endoflife: $endoflife ($now+$lifetime)\n";
 
 warn "now 123 years ago: " . Datizo::TimestampTz->now->minus( Datizo::Interval->parse('123y') );
