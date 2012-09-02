@@ -34,7 +34,7 @@ typedef	Interval *	Datizo_Interval;
 typedef	TimeADT		Datizo_Time;
 typedef	TimeTzADT *	Datizo_TimeTz;
 typedef	Timestamp	Datizo_Timestamp;
-typedef	TimestampTz	Datizo_TimestampTz;
+typedef	TimestampTz *	Datizo_TimestampTz;
 typedef	pg_tz *		Datizo_Timezone;
 
 MODULE = Datizo		PACKAGE = Datizo		
@@ -84,21 +84,25 @@ MODULE = Datizo		PACKAGE = Datizo::TimestampTz
 Datizo_TimestampTz
 now(SV *self)
 CODE:
-	RETVAL = GetCurrentTimestamp();
+	Newx(RETVAL, 1, TimestampTz);
+
+	*RETVAL = GetCurrentTimestamp();
 OUTPUT:
 	RETVAL
 
 Datizo_TimestampTz
 parse(SV *self, char *string)
 CODE:
-	RETVAL = timestamptz_in(string);
+	Newx(RETVAL, 1, TimestampTz);
+
+	*RETVAL = timestamptz_in(string);
 OUTPUT:
 	RETVAL
 
 char *
 to_string(Datizo_TimestampTz self, ...)
 CODE:
-	RETVAL = timestamptz_out(self);
+	RETVAL = timestamptz_out(*self);
 OUTPUT:
 	RETVAL
 
@@ -114,9 +118,11 @@ OUTPUT:
 	RETVAL
 
 Datizo_TimestampTz
-add(Datizo_TimestampTz ts, Datizo_Interval span)
+add(Datizo_TimestampTz self, Datizo_Interval span)
 CODE:
-	RETVAL = timestamptz_pl_interval(ts, span);
+	Newx(RETVAL, 1, TimestampTz);
+
+	*RETVAL = timestamptz_pl_interval(*self, span);
 OUTPUT:
 	RETVAL
 
