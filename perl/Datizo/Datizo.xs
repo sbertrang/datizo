@@ -82,20 +82,20 @@ OUTPUT:
 MODULE = Datizo		PACKAGE = Datizo::TimestampTz		
 
 Datizo_TimestampTz
+new(SV *self, char *string)
+CODE:
+	Newx(RETVAL, 1, TimestampTz);
+
+	*RETVAL = timestamptz_in(string);
+OUTPUT:
+	RETVAL
+
+Datizo_TimestampTz
 now(SV *self)
 CODE:
 	Newx(RETVAL, 1, TimestampTz);
 
 	*RETVAL = GetCurrentTimestamp();
-OUTPUT:
-	RETVAL
-
-Datizo_TimestampTz
-parse(SV *self, char *string)
-CODE:
-	Newx(RETVAL, 1, TimestampTz);
-
-	*RETVAL = timestamptz_in(string);
 OUTPUT:
 	RETVAL
 

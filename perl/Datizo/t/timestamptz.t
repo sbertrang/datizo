@@ -10,7 +10,7 @@ BEGIN {
     use_ok( 'Datizo' );
 }
 
-my $dtz = Datizo::TimestampTz->parse("2012/6/6 10:24");
+my $dtz = Datizo::TimestampTz->new("2012/6/6 10:24");
 
 use Devel::Peek;
 
