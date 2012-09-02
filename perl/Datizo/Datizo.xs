@@ -126,6 +126,15 @@ CODE:
 OUTPUT:
 	RETVAL
 
+Datizo_TimestampTz
+minus(Datizo_TimestampTz self, Datizo_Interval span)
+CODE:
+	Newx(RETVAL, 1, TimestampTz);
+
+	*RETVAL = timestamptz_mi_interval(*self, span);
+OUTPUT:
+	RETVAL
+
 MODULE = Datizo		PACKAGE = Datizo::Timezone		
 
 char *

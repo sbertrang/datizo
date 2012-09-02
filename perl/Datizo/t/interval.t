@@ -41,3 +41,4 @@ my $endoflife = $now->add( my $lt = Datizo::Interval->parse("200 years") );
 
 warn "endoflife: $endoflife ($now+$lt)\n";
 
+warn "now 123 years ago: " . Datizo::TimestampTz->now->minus( Datizo::Interval->parse('123y') );
