@@ -116,6 +116,7 @@ SRCS +=		timetz2tm.c
 SRCS +=		GetCurrentTimestamp.c
 
 SRCS +=		timestamptz_pl_interval.c
+SRCS +=		timestamptz_mi_interval.c
 SRCS +=		interval_justify_interval.c
 SRCS +=		interval_justify_hours.c
 SRCS +=		interval_justify_days.c
