@@ -53,7 +53,7 @@ BOOT:
 MODULE = Datizo		PACKAGE = Datizo::Interval		
 
 Datizo_Interval
-parse(SV *self, char *string)
+new(SV *self, char *string)
 CODE:
 	RETVAL = interval_in(string);
 OUTPUT:

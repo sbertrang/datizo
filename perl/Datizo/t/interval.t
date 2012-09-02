@@ -12,13 +12,13 @@ BEGIN {
 
 my $string = "5000 hours 3 seconds";
 
-my $span = Datizo::Interval->parse( $string );
+my $span = Datizo::Interval->new( $string );
 
 use Devel::Peek;
 
 Dump $span;
 
-warn "Datizo::Interval->parse( $string ) = $span\n";
+warn "Datizo::Interval->new( $string ) = $span\n";
 
 my $now = Datizo::TimestampTz->now();
 
@@ -30,7 +30,7 @@ warn "then: $then ($now+$span)\n";
 
 
 
-my $lifetime = Datizo::Interval->parse( "1000000 hours" );
+my $lifetime = Datizo::Interval->new( "1000000 hours" );
 
 warn "lifetime->justify: " . $lifetime->justify() . "\n";
 warn "lifetime->justify(hours): " . $lifetime->justify('hours') . "\n";
@@ -41,4 +41,4 @@ my $endoflife = $now->add( $lifetime );
 
 warn "endoflife: $endoflife ($now+$lifetime)\n";
 
-warn "now 123 years ago: " . Datizo::TimestampTz->now->minus( Datizo::Interval->parse('123y') );
+warn "now 123 years ago: " . Datizo::TimestampTz->now->minus( Datizo::Interval->new('123y') );
