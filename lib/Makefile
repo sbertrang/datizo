@@ -124,6 +124,15 @@ SRCS +=		interval_justify_days.c
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0
 
+CPPFLAGS +=	-I${.CURDIR}
 LDADD +=	-lm
+
+DISTNAME =	${LIB}-${SHLIB_MAJOR}.${SHLIB_MINOR}
+DISTFILE =	${DISTNAME}.tar.gz 
+
+release: ${DISTFILE}
+
+${DISTFILE}:: Makefile
+	tar -czvf ${DISTFILE} -s '!^!${DISTNAME}/!p' Makefile *.h ${SRCS}
 
 .include <bsd.lib.mk>
