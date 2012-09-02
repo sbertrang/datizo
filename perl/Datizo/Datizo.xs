@@ -16,7 +16,7 @@ getlocaltz(void)
 	const char	*tz;
 
 	/* without a link use GMT */
-	if (readlink("/etc/localtime", &path, sizeof(path)) == -1)
+	if (readlink("/etc/localtime", path, sizeof(path)) == -1)
 		return NULL;
 
 	/* use GMT if there is no matching substring */
