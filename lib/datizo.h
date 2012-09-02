@@ -885,28 +885,6 @@ typedef struct
 	pg_tz		tz;
 } pg_tz_cache;
 
-#include "hsearch.h"
-
-extern HTAB *timezone_cache;
-
-
-
-
-
-/*
-
-src/include/utils/hsearch.h
-*/
-
-
-
-
-
-
-
-
-
-
 
 #ifndef TRUE
 #define TRUE    1

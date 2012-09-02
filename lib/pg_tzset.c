@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "datizo.h"
+#include "hsearch.h"
 
 HTAB *timezone_cache = NULL;
 

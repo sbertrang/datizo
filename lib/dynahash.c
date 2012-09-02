@@ -66,6 +66,7 @@
  */
 
 #include "datizo.h"
+#include "hsearch.h"
 /*
 #include "postgres.h"
 
