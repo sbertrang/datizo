@@ -1,7 +1,10 @@
 Changes
 Datizo.xs
+lib/Datizo.pm
 Makefile.PL
 MANIFEST
 README
-t/Datizo.t
-lib/Datizo.pm
+t/interval.t
+t/load.t
+t/timestamptz.t
+typemap
