@@ -190,6 +190,7 @@ sub cleanargs
 	my $string = shift;
 
 	$string =~ s! \s+ ! !gmsx;
+	$string =~ s! struct [ ] pg_tm !struct tm!gx;
 	#$string =~ s! \* [ ] [a-zA-Z0-9_]+ ! !gx;
 
 	return $string;
