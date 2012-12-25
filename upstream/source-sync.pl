@@ -160,7 +160,7 @@ for my $name ( sort( keys( %distlibs ) ) ) {
 	my $distsrc = $distsrcs->[0];
 	my $libsrc = $libnames{ $name };
 
-	if ( $libsrcs{ $libsrc } =~ m! ^ ( /\* [ ] postgresql: [ ] .+? [ ] \*/ ) $ !x ) {
+	if ( $libsrcs{ $libsrc } =~ m! ^ ( /\* [ ] postgresql: [ ] .+? [ ] \*/ ) \n !x ) {
 		warn( "found comment: $1\n" );
 	}
 	else {
