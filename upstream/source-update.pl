@@ -56,6 +56,7 @@ my %libsrcs;
 my %libdists;
 my %distlibs;
 
+# load local sources
 for my $libsrc ( @libsrcs ) {
 	if ( open( my $fh, '<', "$libdir/$libsrc" ) ) {
 		local( $/ );
@@ -67,15 +68,17 @@ for my $libsrc ( @libsrcs ) {
 		next;
 	}
 
+	# skip files without postgresql source path comment
 	unless ( $libsrcs{ $libsrc } =~ m! ^/[*][ ]postgresql:[ ](.+)[ ][*]/\n !x ) {
 		warn( "no source comment found: $libsrc\n" );
 		next;
 	}
-	my $distsrc = $1;
 
-	$libdists{ $libsrc } = $distsrc;
+	# local source file to distfile mapping
+	$libdists{ $libsrc } = $1;
 
-	push( @{ $distlibs{ $distsrc } }, $libsrc );
+	# reverse map from distfile to local sources
+	push( @{ $distlibs{ $1 } }, $libsrc );
 }
 
 my @distsrcs = sort( keys( %distlibs ) );
@@ -88,8 +91,7 @@ warn( Dumper( {
 	'distsrcs'	=> \@distsrcs,
 } ) );
 
-# load dist sources
-
+# load dist sources as indicated by source path comments
 for my $distsrc ( @distsrcs ) {
 	if ( open( my $fh, '<', "$distdir/$distsrc" ) ) {
 		local( $/ );
@@ -104,22 +106,27 @@ for my $distsrc ( @distsrcs ) {
 }
 
 my $refuncret = "([\\w\\d\\s_*-]+)";
-my $refuncargs = "\\( \\s* (.*?) \\s* \\)";
-my $refuncbody = "( \\n \\{ \\n .*? \\n \\} \\n )";
+my $refuncargs = "\\( \\s* ([^;()]*?) \\s* \\)";
+my $refuncbody = "( \\n \\{ \\n .*? \\n \\} (?: [ \\t]* /[*] [^\\n]*? [*]/ )? [ \\t]* \\n )";
 
 my @libfuncs;
 my %libfuncs;
 
+# iterate local sources to find functions
 for my $libsrc ( @libsrcs ) {
+	# function name based on file
 	my ( $func ) = $libsrc =~ m!\A (.+) [.] c \z!x;
 
+	# keep the function names around
 	push( @libfuncs, $func );
 
+	# lookup function and body
 	if ( $libsrcs{ $libsrc } =~ m! ^ ( $refuncret $func $refuncargs $refuncbody ) !msx ) {
 		my $source = $1;
 		my $ret = $2;
 		my $args = $3;
 		my $body = $4;
+
 		warn( "found old function: $ret - $func ( $args )\n$body\n\n" );
 
 		$libfuncs{ $func } = {
@@ -138,19 +145,23 @@ my $relibfuncs = join( "|", map( quotemeta, @libfuncs ) );
 
 my %distfuncs;
 
+# iterate dist sources to find functions
 for my $distsrc ( @distsrcs ) {
+	# scan in a loop
 	while ( $distsrcs{ $distsrc } =~ m! ^ $refuncret ($relibfuncs) $refuncargs $refuncbody !gmsx ) {
 		my $ret = $1;
 		my $func = $2;
 		my $body = $4;
 		my $args = $3;
-		warn( "found new function: $ret - $func ( $args )\n$body\n\n" );
 
-		$distfuncs{ $func } = {
+		my $distfunc = $distfuncs{ $func } = {
 			'returns'	=> cleanargs( $ret ),
 			'arguments'	=> cleanargs( $args ),
 			'body'		=> $body,
 		};
+
+		#warn( "found new function: $distfunc->{returns} - $func ( $distfunc->{arguments} )\n$body\n\n" );
+
 	}
 }
 
@@ -164,12 +175,8 @@ for my $name ( @libfuncs ) {
 	my $old = exists( $libfuncs{ $name } ) ? $libfuncs{ $name } : undef;
 	my $new = exists( $distfuncs{ $name } ) ? $distfuncs{ $name } : undef;
 
-	$new->{body} =~ s!(struct\s+)pg_tm!${1}tm!gx;
-	$new->{body} =~ s!\b int (8|16|32|64) \b!int${1}_t!gx;
-	$new->{body} =~ s!\b Assert \( !assert(!gx;
-	$new->{body} =~ s!\b pstrdup \( !strdup(!gx;
-	$new->{body} =~ s!\b palloc \( !malloc(!gx;
-	$new->{body} =~ s!\b MAXPGPATH \b!MAXPATHLEN!gx;
+	# adjust a few function names and types
+	fixup_types( $new );
 
 	# without an old version take the new one
 	unless ( $old ) {
@@ -187,18 +194,13 @@ for my $name ( @libfuncs ) {
 
 		# ignore the "static" prefix
 		if ( $new->{returns} =~ m!\A static \s+ (.+) !x && $1 eq $old->{returns} ) {
-			warn( "$name: local return value without static!\n" );
+			warn( "$name: remove static keyword from return value: $1\n" );
+			# change to value without prefix
 			$new->{returns} = $1;
 		}
-		else {
-			# more work to do...
-			if ( $new->{returns} eq 'Datum' ) {
-				fixup_datum_func( $name, $new );
-			}
-			else {
-				warn( "$name: different return value: old=<$old->{returns}> != new=<$new->{returns}>\n" );
-				next;
-			}
+
+		if ( $new->{returns} eq 'Datum' ) {
+			fixup_datum_func( $name, $new );
 		}
 
 	}
@@ -223,6 +225,9 @@ for my $name ( @libfuncs ) {
 	}
 
 	warn( "DIFFERENT: $name\n" );
+
+	# XXX: DO NOT DO IT
+	#next;
 
 	my $data = $libsrcs{ "$name.c" };
 
@@ -288,7 +293,7 @@ sub fixup_datum_func
 	unless ( $body =~ s!
 	    ^ (\s*) PG_RETURN_([A-Z0-9_]+)
 	      \s* \(
-	      \s* ( .*? )
+	      \s* ( [a-zA-Z0-9_]*? )
 	      \s* \) ( \s* ; \s* \} \s* )
 	    \z!$1return $3$4!msx ) {
 		warn( "no return value found!" );
@@ -323,5 +328,27 @@ sub fixup_datum_func
 	$new->{body} = $body;
 
 	#warn( "updated code: <<<$new->{returns}\n$name($new->{arguments})$body>>>" );
+}
+
+sub fixup_types
+{
+	my $new = shift;
+
+	# do nothing without code
+	unless ( exists( $new->{body}) && defined( $new->{body} ) ) {
+		return;
+	}
+
+	$new->{body} =~ s!(struct\s+)pg_tm!${1}tm!gx;
+	$new->{body} =~ s!\b int (8|16|32|64) \b!int${1}_t!gx;
+	$new->{body} =~ s!\b Assert \( !assert(!gx;
+	$new->{body} =~ s!\b pstrdup \( !strdup(!gx;
+	$new->{body} =~ s!\b palloc \( !malloc(!gx;
+	$new->{body} =~ s!\b MAXPGPATH \b!MAXPATHLEN!gx;
+
+	# return open(fullname, O_RDONLY | PG_BINARY, 0);
+	$new->{body} =~ s! [ ][|][ ] PG_BINARY [,] !!gx;
+
+
 }
 
