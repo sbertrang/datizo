@@ -8,6 +8,7 @@ use strict;
 use warnings;
 use Cwd qw( realpath );
 use Data::Dumper qw( Dumper );
+use File::Temp qw( tempfile );
 
 sub cleanargs
 {
@@ -26,6 +27,8 @@ sub cleanargs
 
 	# adjust for local struct change
 	$string =~ s!\b struct[ ]pg_tm \b!struct tm!gx;
+
+	$string =~ s!\b int ( 8 | 16 | 32 | 64 ) \b!int${1}_t!gx;
 
 	#warn( "arg string: <$string>" );
 
@@ -112,16 +115,18 @@ for my $libsrc ( @libsrcs ) {
 
 	push( @libfuncs, $func );
 
-	if ( $libsrcs{ $libsrc } =~ m! ^ $refuncret $func $refuncargs $refuncbody !msx ) {
-		my $ret = $1;
-		my $args = $2;
-		my $body = $3;
+	if ( $libsrcs{ $libsrc } =~ m! ^ ( $refuncret $func $refuncargs $refuncbody ) !msx ) {
+		my $source = $1;
+		my $ret = $2;
+		my $args = $3;
+		my $body = $4;
 		warn( "found old function: $ret - $func ( $args )\n$body\n\n" );
 
 		$libfuncs{ $func } = {
 			'returns'	=> cleanargs( $ret ),
 			'arguments'	=> cleanargs( $args ),
 			'body'		=> $body,
+			'source'	=> $source,
 		};
 	}
 	else {
@@ -159,50 +164,79 @@ for my $name ( @libfuncs ) {
 	my $old = exists( $libfuncs{ $name } ) ? $libfuncs{ $name } : undef;
 	my $new = exists( $distfuncs{ $name } ) ? $distfuncs{ $name } : undef;
 
-	if ( $old && $new &&
-	    $old->{returns} eq $new->{returns} &&
-	    $old->{arguments} eq $new->{arguments} &&
-	    $old->{body} eq $new->{body} ) {
-		warn( "ok: $name\n" );
-		next;
-	}
+	$new->{body} =~ s!(struct\s+)pg_tm!${1}tm!gx;
+	$new->{body} =~ s!\b int (8|16|32|64) \b!int${1}_t!gx;
+	$new->{body} =~ s!\b Assert \( !assert(!gx;
+	$new->{body} =~ s!\b pstrdup \( !strdup(!gx;
+	$new->{body} =~ s!\b palloc \( !malloc(!gx;
+	$new->{body} =~ s!\b MAXPGPATH \b!MAXPATHLEN!gx;
 
+	# without an old version take the new one
 	unless ( $old ) {
-		warn( "$name: no old function\n" );
-		next;
+		warn( "no $name: using new function\n" );
 	}
-	elsif ( ! $new ) {
-		warn( "$name: no new function\n" );
-		next;
-	}
-	elsif ( $old->{returns} ne $new->{returns} ) {
 
-		# static?
+	# ignore without a new version
+	unless ( $new ) {
+		warn( "$name: no new function, bad!\n" );
+		next;
+	}
+
+	# check return type
+	if ( $old->{returns} ne $new->{returns} ) {
+
+		# ignore the "static" prefix
 		if ( $new->{returns} =~ m!\A static \s+ (.+) !x && $1 eq $old->{returns} ) {
 			warn( "$name: local return value without static!\n" );
+			$new->{returns} = $1;
 		}
 		else {
-			warn( "$name: different return value: old=<$old->{returns}> != new=<$new->{returns}>\n" );
-
 			# more work to do...
 			if ( $new->{returns} eq 'Datum' ) {
 				fixup_datum_func( $name, $new );
 			}
-
-			next;
+			else {
+				warn( "$name: different return value: old=<$old->{returns}> != new=<$new->{returns}>\n" );
+				next;
+			}
 		}
 
 	}
-	elsif ( $old->{arguments} ne $new->{arguments} ) {
+
+	if ( $old->{arguments} ne $new->{arguments} ) {
 		warn( "$name: different arguments: <$old->{arguments}> != <$new->{arguments}>\n" );
-		next;
+		#next;
 	}
-	elsif ( $old->{body} ne $new->{body} ) {
+
+	if ( $old->{body} ne $new->{body} ) {
 		warn( "$name: different function body: <$old->{body}> != <$new->{body}>\n" );
+		#next;
+	}
+
+	# when everything is the same, do nothing
+	if ( $old && $new &&
+	    $old->{returns} eq $new->{returns} &&
+	    $old->{arguments} eq $new->{arguments} &&
+	    $old->{body} eq $new->{body} ) {
+		warn( "SAME: $name\n" );
 		next;
 	}
 
-	warn( "$name: same\n" );
+	warn( "DIFFERENT: $name\n" );
+
+	my $data = $libsrcs{ "$name.c" };
+
+	$data =~ s! \Q$old->{source}\E !$new->{returns}\n$name($new->{arguments})$new->{body}!x;
+
+	warn( "new file content:\n$data\n" );
+
+	my ( $fh, $temp ) = tempfile( 'XXXXXXXXX',
+		'DIR'	=> $libdir,
+	);
+	print( $fh $data );
+	close( $fh );
+
+	rename( $temp, "$libdir/$name.c" );
 }
 
 warn( Dumper( \%typemap ) );
@@ -217,10 +251,10 @@ sub fixup_datum_func
 	my $body = $new->{body};
 	my @args;
 
-	warn( "find args in $body" );
+	#warn( "find args in $body" );
 
 	my $reifdef = "[ \\t]* \\# [ \\t]* ifdef [ \\t]+ NOT_USED [ \\t]* [\\r\\n]+";
-	my $regetarg = "( \\s+ ([^=;(){}#]+?) \\s* = \\s* PG_GETARG_([A-Z0-9_]+) \\( ([0-9]+) \\) ; ) [\\r\\n]+";
+	my $regetarg = "( \\s+ ([^/=;(){}#]+?) \\s* = \\s* PG_GETARG_([A-Z0-9_]+) \\( ([0-9]+) \\) ; ) [\\r\\n]+";
 	my $reendif = "[ \\t]* \\# [ \\t]* endif [ \\t]* [\\r\\n]+";
 
 	while ( $body =~ s! ^ ($reifdef) $regetarg $reendif !!msx ||
@@ -241,7 +275,7 @@ sub fixup_datum_func
 			next;
 		}
 
-		warn( " - indirect argument: $var - ARG[$pos] - $macro" );
+		#warn( " - indirect argument: $var - ARG[$pos] - $macro" );
 
 		push( @args, $var );
 
@@ -264,7 +298,7 @@ sub fixup_datum_func
 	my $ret = $2;
 	my $var = $3;
 
-	warn( "ret=<$ret>, var=<$var>" );
+	#warn( "ret=<$ret>, var=<$var>" );
 
 	# lookup return type
 	unless ( $body =~ m!
@@ -277,15 +311,17 @@ sub fixup_datum_func
 
 	my $retype = anonvar( $1 );
 
+	$retype =~ s!(struct\s+pg_tm)!${1}tm!g;
+	$body =~ s!(struct\s+)pg_tm!${1}tm!g;
 
 	if ( $retype ) {
-		warn( "!!! retype: $retype\n" );
+		#warn( "!!! retype: $retype\n" );
 
 		$new->{returns} = $retype;
 	}
 
 	$new->{body} = $body;
 
-	warn( "updated code: <<<$new->{returns}\n$name($new->{arguments})$body>>>" );
+	#warn( "updated code: <<<$new->{returns}\n$name($new->{arguments})$body>>>" );
 }
 
