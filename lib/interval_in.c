@@ -1,3 +1,4 @@
+/* postgresql: src/backend/utils/adt/timestamp.c */
 
 #include <stdlib.h>
 
