@@ -118,7 +118,11 @@ for my $libsrc ( @libsrcs ) {
 		my $code = $3;
 		warn( "found old function: $ret - $func ( $args )\n$code\n\n" );
 
-		$libfuncs{ $func } = [ cleanargs( $ret ), cleanargs( $args ), $code ];
+		$libfuncs{ $func } = {
+			'returns'	=> cleanargs( $ret ),
+			'arguments'	=> cleanargs( $args ),
+			'body'		=> $code,
+		};
 	}
 	else {
 		warn( "could not find old function: $func\n" );
@@ -137,7 +141,11 @@ for my $distsrc ( @distsrcs ) {
 		my $args = $3;
 		warn( "found new function: $ret - $func ( $args )\n$code\n\n" );
 
-		$distfuncs{ $func } = [ cleanargs( $ret ), cleanargs( $args ), $code ];
+		$distfuncs{ $func } = {
+			'returns'	=> cleanargs( $ret ),
+			'arguments'	=> cleanargs( $args ),
+			'body'		=> $code,
+		};
 	}
 }
 
@@ -148,13 +156,13 @@ my %typemap;
 my @later;
 
 for my $name ( @libfuncs ) {
-	my $old = $libfuncs{ $name };
-	my $new = $distfuncs{ $name };
+	my $old = exists( $libfuncs{ $name } ) ? $libfuncs{ $name } : undef;
+	my $new = exists( $distfuncs{ $name } ) ? $distfuncs{ $name } : undef;
 
 	if ( $old && $new &&
-	    $old->[0] eq $new->[0] &&
-	    $old->[1] eq $new->[1] &&
-	    $old->[2] eq $new->[2] ) {
+	    $old->{returns} eq $new->{returns} &&
+	    $old->{arguments} eq $new->{arguments} &&
+	    $old->{body} eq $new->{body} ) {
 		warn( "ok: $name\n" );
 		next;
 	}
@@ -167,18 +175,18 @@ for my $name ( @libfuncs ) {
 		warn( "$name: no new function\n" );
 		next;
 	}
-	elsif ( $old->[0] ne $new->[0] ) {
+	elsif ( $old->{returns} ne $new->{returns} ) {
 
 		# static?
-		if ( $new->[0] =~ m!\A static \s+ (.+) !x && $1 eq $old->[0] ) {
+		if ( $new->{returns} =~ m!\A static \s+ (.+) !x && $1 eq $old->{returns} ) {
 			warn( "$name: local return value without static!\n" );
 		}
 		else {
-			warn( "$name: different return value: old=<$old->[0]> != new=<$new->[0]>\n" );
+			warn( "$name: different return value: old=<$old->{returns}> != new=<$new->{returns}>\n" );
 
 			# more work to do...
-			if ( $new->[0] eq 'Datum' ) {
-				my $code = $new->[2];
+			if ( $new->{returns} eq 'Datum' ) {
+				my $code = $new->{body};
 				my @args;
 
 				warn( "find args in $code" );
@@ -211,8 +219,8 @@ for my $name ( @libfuncs ) {
 
 				}
 
-				if ( $new->[1] eq 'PG_FUNCTION_ARGS' ) {
-					$new->[1] = join( ', ', @args );
+				if ( $new->{arguments} eq 'PG_FUNCTION_ARGS' ) {
+					$new->{arguments} = join( ', ', @args );
 				}
 
 				unless ( $code =~ s!
@@ -245,24 +253,24 @@ for my $name ( @libfuncs ) {
 				if ( $retype ) {
 					warn( "!!! retype: $retype\n" );
 
-					$new->[0] = $retype;
+					$new->{returns} = $retype;
 				}
 
-				$new->[2] = $code;
+				$new->{body} = $code;
 
-				warn( "updated code: <<<$new->[0]\n$name($new->[1])$code>>>" );
+				warn( "updated code: <<<$new->{returns}\n$name($new->{arguments})$code>>>" );
 			}
 
 			next;
 		}
 
 	}
-	elsif ( $old->[1] ne $new->[1] ) {
-		warn( "$name: different arguments: <$old->[1]> != <$new->[1]>\n" );
+	elsif ( $old->{arguments} ne $new->{arguments} ) {
+		warn( "$name: different arguments: <$old->{arguments}> != <$new->{arguments}>\n" );
 		next;
 	}
-	elsif ( $old->[2] ne $new->[2] ) {
-		warn( "$name: different function body: <$old->[2]> != <$new->[2]>\n" );
+	elsif ( $old->{body} ne $new->{body} ) {
+		warn( "$name: different function body: <$old->{body}> != <$new->{body}>\n" );
 		next;
 	}
 
@@ -270,3 +278,4 @@ for my $name ( @libfuncs ) {
 }
 
 warn( Dumper( \%typemap ) );
+
