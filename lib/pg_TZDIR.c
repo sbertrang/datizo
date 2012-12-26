@@ -4,6 +4,7 @@
 
 #include "datizo.h"
 
+#define	SYSTEMTZDIR "/usr/share/zoneinfo"
 
 /*
  * Return full pathname of timezone data directory
@@ -11,7 +12,6 @@
 const char *
 pg_TZDIR(void)
 {
-#define	SYSTEMTZDIR "/usr/share/zoneinfo"
 #ifndef SYSTEMTZDIR
 	/* normal case: timezone stuff is under our share dir */
 	static bool done_tzdir = false;
