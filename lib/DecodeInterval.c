@@ -20,8 +20,7 @@
  *	preceding an hh:mm:ss field. - thomas 1998-04-30
  */
 int
-DecodeInterval(char **field, int *ftype, int nf, int range,
-			   int *dtype, struct tm * tm, fsec_t *fsec)
+DecodeInterval(char **field, int *ftype, int nf, int range, int *dtype, struct tm *tm, fsec_t *fsec)
 {
 	bool		is_before = FALSE;
 	char	   *cp;
@@ -53,16 +52,15 @@ DecodeInterval(char **field, int *ftype, int nf, int range,
 			case DTK_TZ:
 
 				/*
-				 * Timezone is a token with a leading sign character and at
+				 * Timezone means a token with a leading sign character and at
 				 * least one digit; there could be ':', '.', '-' embedded in
 				 * it as well.
 				 */
 				assert(*field[i] == '-' || *field[i] == '+');
 
 				/*
-				 * Try for hh:mm or hh:mm:ss.  If not, fall through to
-				 * DTK_NUMBER case, which can handle signed float numbers and
-				 * signed year-month values.
+				 * Check for signed hh:mm or hh:mm:ss.  If so, process exactly
+				 * like DTK_TIME case above, plus handling the sign.
 				 */
 				if (strchr(field[i] + 1, ':') != NULL &&
 					DecodeTime(field[i] + 1, fmask, INTERVAL_FULL_RANGE,
@@ -86,6 +84,12 @@ DecodeInterval(char **field, int *ftype, int nf, int range,
 					tmask = DTK_M(TZ);
 					break;
 				}
+
+				/*
+				 * Otherwise, fall through to DTK_NUMBER case, which can
+				 * handle signed float numbers and signed year-month values.
+				 */
+
 				/* FALL THROUGH */
 
 			case DTK_DATE:

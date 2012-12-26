@@ -17,8 +17,7 @@
  *	*tm: field values are stored into appropriate members of this struct
  */
 int
-DecodeDate(char *str, int fmask, int *tmask, bool *is2digits,
-		   struct tm * tm)
+DecodeDate(char *str, int fmask, int *tmask, bool *is2digits, struct tm *tm)
 {
 	fsec_t		fsec;
 	int			nf = 0;

@@ -15,9 +15,6 @@
 Interval *
 interval_justify_hours(Interval *span)
 {
-/*
-	Interval   *span = PG_GETARG_INTERVAL_P(0);
-*/
 	Interval   *result;
 	TimeOffset	wholeday;
 

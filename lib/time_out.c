@@ -3,11 +3,9 @@
 #include <string.h>
 
 #include "datizo.h"
-
 char *
 time_out(TimeADT time)
 {
-	/*TimeADT		time = PG_GETARG_TIMEADT(0);*/
 	char	   *result;
 	struct tm tt,
 			   *tm = &tt;

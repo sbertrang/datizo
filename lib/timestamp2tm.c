@@ -15,7 +15,7 @@
  * timezone) will be used.
  */
 int
-timestamp2tm(Timestamp dt, int *tzp, struct tm * tm, fsec_t *fsec, const char **tzn, pg_tz *attimezone)
+timestamp2tm(Timestamp dt, int *tzp, struct tm *tm, fsec_t *fsec, const char **tzn, pg_tz *attimezone)
 {
 	Timestamp	date;
 	Timestamp	time;
@@ -125,7 +125,7 @@ recalc_t:
 	 * platform-specific roundoff-in-wrong-direction errors, and adjust to
 	 * Unix epoch.	Then see if we can convert to pg_time_t without loss. This
 	 * coding avoids hardwiring any assumptions about the width of pg_time_t,
-	 * so it should behave sanely on machines without int64.
+	 * so it should behave sanely on machines without int64_t.
 	 */
 #ifdef HAVE_INT64_TIMESTAMP
 	dt = (dt - *fsec) / USECS_PER_SEC +

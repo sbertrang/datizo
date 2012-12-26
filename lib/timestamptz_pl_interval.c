@@ -18,10 +18,6 @@
 TimestampTz
 timestamptz_pl_interval(TimestampTz timestamp, Interval *span)
 {
-/*
-	TimestampTz timestamp = PG_GETARG_TIMESTAMPTZ(0);
-	Interval   *span = PG_GETARG_INTERVAL_P(1);
-*/
 	TimestampTz result;
 	int			tz;
 

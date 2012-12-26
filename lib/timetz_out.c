@@ -3,11 +3,9 @@
 #include <string.h>
 
 #include "datizo.h"
-
 char *
 timetz_out(TimeTzADT *time)
 {
-	/* TimeTzADT  *time = PG_GETARG_TIMETZADT_P(0); */
 	char	   *result;
 	struct tm tt,
 			   *tm = &tt;
@@ -19,7 +17,6 @@ timetz_out(TimeTzADT *time)
 	EncodeTimeOnly(tm, fsec, true, tz, DateStyle, buf);
 
 	result = strdup(buf);
-
 	return result;
 }
 

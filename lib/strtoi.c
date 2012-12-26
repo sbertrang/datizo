@@ -13,7 +13,7 @@ strtoi(const char *nptr, char **endptr, int base)
 
 	val = strtol(nptr, endptr, base);
 #ifdef HAVE_LONG_INT_64
-	if (val != (long) ((int32) val))
+	if (val != (long) ((int32_t) val))
 		errno = ERANGE;
 #endif
 	return (int) val;

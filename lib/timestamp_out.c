@@ -10,7 +10,6 @@
 char *
 timestamp_out(Timestamp timestamp)
 {
-	/* Timestamp	timestamp = PG_GETARG_TIMESTAMP(0); */
 	char	   *result;
 	struct tm tt,
 			   *tm = &tt;
@@ -25,7 +24,6 @@ timestamp_out(Timestamp timestamp)
 		warnx("timestamp out of range");
 
 	result = strdup(buf);
-
 	return result;
 }
 

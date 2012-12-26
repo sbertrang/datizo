@@ -10,7 +10,6 @@
 char *
 date_out(DateADT date)
 {
-	/*DateADT		date = PG_GETARG_DATEADT(0);*/
 	char	   *result;
 	struct tm tt,
 			   *tm = &tt;

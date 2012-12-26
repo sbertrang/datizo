@@ -13,9 +13,6 @@
 Interval *
 interval_justify_days(Interval *span)
 {
-/*
-	Interval   *span = PG_GETARG_INTERVAL_P(0);
-*/
 	Interval   *result;
 	int32_t		wholemonth;
 

@@ -10,7 +10,6 @@
 char *
 interval_out(Interval *span)
 {
-	/* Interval   *span = PG_GETARG_INTERVAL_P(0); */
 	char	   *result;
 	struct tm tt,
 			   *tm = &tt;
