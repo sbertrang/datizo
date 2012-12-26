@@ -1,3 +1,4 @@
+/* postgresql: postgresql-9.2.2/src/backend/utils/hash/hashfn.c */
 /*-------------------------------------------------------------------------
  *
  * hashfn.c

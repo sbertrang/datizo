@@ -1,3 +1,4 @@
+/* postgresql: postgresql-9.2.2/src/backend/nodes/bitmapset.c */
 /*-------------------------------------------------------------------------
  *
  * bitmapset.c

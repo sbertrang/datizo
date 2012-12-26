@@ -1,3 +1,4 @@
+/* postgresql: src/port/pgstrcasecmp.c */
 /*-------------------------------------------------------------------------
  *
  * pgstrcasecmp.c
