@@ -186,79 +186,7 @@ for my $name ( @libfuncs ) {
 
 			# more work to do...
 			if ( $new->{returns} eq 'Datum' ) {
-				my $body = $new->{body};
-				my @args;
-
-				warn( "find args in $body" );
-
-				my $reifdef = "[ \\t]* \\# [ \\t]* ifdef [ \\t]+ NOT_USED [ \\t]* [\\r\\n]+";
-				my $regetarg = "( \\s+ ([^=;(){}#]+?) \\s* = \\s* PG_GETARG_([A-Z0-9_]+) \\( ([0-9]+) \\) ; ) [\\r\\n]+";
-				my $reendif = "[ \\t]* \\# [ \\t]* endif [ \\t]* [\\r\\n]+";
-
-				while ( $body =~ s! ^ ($reifdef) $regetarg $reendif !!msx ||
-				    $body =~ s! ^ () $regetarg !!msx ) {
-					my $unused = $1 ? 1 : 0;
-					my $line = $2;
-					my $var = $3;
-					my $macro = $4;
-					my $pos = $5;
-					my $type = anonvar( $var );
-
-					$var = cleanargs( $var );
-
-					$typemap{ $macro } = $type;
-
-					if ( $unused ) {
-						warn( "NOT USED: ###$line###\n" );
-						next;
-					}
-
-					warn( " - indirect argument: $var - ARG[$pos] - $macro" );
-
-					push( @args, $var );
-
-				}
-
-				if ( $new->{arguments} eq 'PG_FUNCTION_ARGS' ) {
-					$new->{arguments} = join( ', ', @args );
-				}
-
-				unless ( $body =~ s!
-				    ^ (\s*) PG_RETURN_([A-Z0-9_]+)
-				      \s* \(
-				      \s* ( .*? )
-				      \s* \) ( \s* ; \s* \} \s* )
-				    \z!$1return $3$4!msx ) {
-					warn( "no return value found!" );
-					next;
-				}
-
-				my $ret = $2;
-				my $var = $3;
-
-				warn( "ret=<$ret>, var=<$var>" );
-
-				# lookup return type
-				unless ( $body =~ m!
-				    ^ \s* ([A-Za-z0-9 \t]+	# type decl
-				    (?: \s*\* | \s+ )		# delimiter
-				    \Q$var\E \s* ) [;,]
-				    !msx ) {
-					warn( "!!! failed to find type: $var\n" );
-				}
-
-				my $retype = anonvar( $1 );
-
-
-				if ( $retype ) {
-					warn( "!!! retype: $retype\n" );
-
-					$new->{returns} = $retype;
-				}
-
-				$new->{body} = $body;
-
-				warn( "updated code: <<<$new->{returns}\n$name($new->{arguments})$body>>>" );
+				fixup_datum_func( $name, $new );
 			}
 
 			next;
@@ -278,4 +206,86 @@ for my $name ( @libfuncs ) {
 }
 
 warn( Dumper( \%typemap ) );
+
+
+
+sub fixup_datum_func
+{
+	my $name = shift;
+	my $new = shift;
+
+	my $body = $new->{body};
+	my @args;
+
+	warn( "find args in $body" );
+
+	my $reifdef = "[ \\t]* \\# [ \\t]* ifdef [ \\t]+ NOT_USED [ \\t]* [\\r\\n]+";
+	my $regetarg = "( \\s+ ([^=;(){}#]+?) \\s* = \\s* PG_GETARG_([A-Z0-9_]+) \\( ([0-9]+) \\) ; ) [\\r\\n]+";
+	my $reendif = "[ \\t]* \\# [ \\t]* endif [ \\t]* [\\r\\n]+";
+
+	while ( $body =~ s! ^ ($reifdef) $regetarg $reendif !!msx ||
+	    $body =~ s! ^ () $regetarg !!msx ) {
+		my $unused = $1 ? 1 : 0;
+		my $line = $2;
+		my $var = $3;
+		my $macro = $4;
+		my $pos = $5;
+		my $type = anonvar( $var );
+
+		$var = cleanargs( $var );
+
+		$typemap{ $macro } = $type;
+
+		if ( $unused ) {
+			warn( "NOT USED: ###$line###\n" );
+			next;
+		}
+
+		warn( " - indirect argument: $var - ARG[$pos] - $macro" );
+
+		push( @args, $var );
+
+	}
+
+	if ( $new->{arguments} eq 'PG_FUNCTION_ARGS' ) {
+		$new->{arguments} = join( ', ', @args );
+	}
+
+	unless ( $body =~ s!
+	    ^ (\s*) PG_RETURN_([A-Z0-9_]+)
+	      \s* \(
+	      \s* ( .*? )
+	      \s* \) ( \s* ; \s* \} \s* )
+	    \z!$1return $3$4!msx ) {
+		warn( "no return value found!" );
+		next;
+	}
+
+	my $ret = $2;
+	my $var = $3;
+
+	warn( "ret=<$ret>, var=<$var>" );
+
+	# lookup return type
+	unless ( $body =~ m!
+	    ^ \s* ([A-Za-z0-9 \t]+	# type decl
+	    (?: \s*\* | \s+ )		# delimiter
+	    \Q$var\E \s* ) [;,]
+	    !msx ) {
+		warn( "!!! failed to find type: $var\n" );
+	}
+
+	my $retype = anonvar( $1 );
+
+
+	if ( $retype ) {
+		warn( "!!! retype: $retype\n" );
+
+		$new->{returns} = $retype;
+	}
+
+	$new->{body} = $body;
+
+	warn( "updated code: <<<$new->{returns}\n$name($new->{arguments})$body>>>" );
+}
 
