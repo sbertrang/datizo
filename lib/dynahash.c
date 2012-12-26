@@ -1,4 +1,4 @@
-/* postgresql: postgresql-9.2.2/src/backend/utils/hash/dynahash.c */
+/* postgresql: src/backend/utils/hash/dynahash.c */
 /*-------------------------------------------------------------------------
  *
  * dynahash.c

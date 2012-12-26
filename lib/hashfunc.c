@@ -1,4 +1,4 @@
-/* postgresql: postgresql-9.2.2/src/backend/access/hash/hashfunc.c */
+/* postgresql: src/backend/access/hash/hashfunc.c */
 /*-------------------------------------------------------------------------
  *
  * hashfunc.c
