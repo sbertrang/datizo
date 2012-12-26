@@ -184,11 +184,11 @@ for my $name ( @libfuncs ) {
 				warn( "find args in $code" );
 
 				my $reifdef = "[ \\t]* \\# [ \\t]* ifdef [ \\t]+ NOT_USED [ \\t]* [\\r\\n]+";
-				my $regetarg = "( \\s+ ([^=;(){}#]+?) \\s* = \\s* PG_GETARG_([A-Z0-9_]+) \\( ([0-9]+) \\) ; )";
+				my $regetarg = "( \\s+ ([^=;(){}#]+?) \\s* = \\s* PG_GETARG_([A-Z0-9_]+) \\( ([0-9]+) \\) ; ) [\\r\\n]+";
 				my $reendif = "[ \\t]* \\# [ \\t]* endif [ \\t]* [\\r\\n]+";
 
-				while ( $code =~ s! ^ ($reifdef) $regetarg [\r\n]+ $reendif !!msx ||
-				    $code =~ s! ^ () $regetarg $ !!msx ) {
+				while ( $code =~ s! ^ ($reifdef) $regetarg $reendif !!msx ||
+				    $code =~ s! ^ () $regetarg !!msx ) {
 					my $unused = $1 ? 1 : 0;
 					my $line = $2;
 					my $var = $3;
