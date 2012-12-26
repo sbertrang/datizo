@@ -145,6 +145,7 @@ warn( "compare results...\n" );
 
 # map postgresql macros to real types
 my %typemap;
+my @later;
 
 for my $name ( @libfuncs ) {
 	my $old = $libfuncs{ $name };
@@ -178,9 +179,19 @@ for my $name ( @libfuncs ) {
 			# more work to do...
 			if ( $new->[0] eq 'Datum' ) {
 				my $code = $new->[2];
+				my @args;
 
 				warn( "find args in $code" );
 
+				my $reifdef = "[ \\t]* \\# [ \\t]* ifdef [ \\t]+ NOT_USED [ \\t]* [\\r\\n]+";
+				my $regetarg = "( \\s+ ([^=;(){}#]+?) \\s* = \\s* PG_GETARG_([A-Z0-9_]+) \\( ([0-9]+) \\) ; )";
+				my $reendif = "[ \\t]* \\# [ \\t]* endif [ \\t]* [\\r\\n]+";
+
+				while ( $code =~ s! ^ ($reifdef) $regetarg [\r\n]+ $reendif !!msx ||
+				    $code =~ s! ^ () $regetarg $ !!msx ) {
+				#while ( $code =~ s! ^ ( $reifdef )? $regetarg (?: $reendif )? $ !!msx ) {
+
+=tmp
 				while ( $code =~ s!
 				    ^ ( [ \t]* \# [ \t]* ifdef [ \t]+ NOT_USED [ \t]* [\r\n]+ )?
 				      ( \s+ ([^=;(){}#]+?)
@@ -188,17 +199,22 @@ for my $name ( @libfuncs ) {
 				        \s* PG_GETARG_([A-Z0-9_]+)
 				        \( ([0-9]+) \) ;
 				      )
-				      (?: [ \t]* \# [ \t]* endif [ \t]* [\r\n]+ )?
+				      (?: [ \t\r\n]* \# [ \t]* endif [ \t]* [\r\n]+ )?
 				    $ !!msx ) {
+=cut
+
+				#while ( $code =~ s! ^ ($reifdef) $regetarg $reendif $ !!msx ) { #||
+				    #$code =~ s! ^ () $regetarg $ !!msx ) {
 					my $unused = $1 ? 1 : 0;
 					my $line = $2;
 					my $var = $3;
 					my $macro = $4;
 					my $pos = $5;
+					my $type = anonvar( $var );
 
 					$var = cleanargs( $var );
 
-					$typemap{ $macro } = anonvar( $var );
+					$typemap{ $macro } = $type;
 
 					if ( $unused ) {
 						warn( "NOT USED: ###$line###\n" );
@@ -206,23 +222,51 @@ for my $name ( @libfuncs ) {
 					}
 
 					warn( " - indirect argument: $var - ARG[$pos] - $macro" );
+
+					push( @args, $var );
+
 				}
 
-				unless ( $code =~ m!
-				    ^ \s* PG_RETURN_([A-Z0-9_]+)
+				if ( $new->[1] eq 'PG_FUNCTION_ARGS' ) {
+					$new->[1] = join( ', ', @args );
+				}
+
+				unless ( $code =~ s!
+				    ^ (\s*) PG_RETURN_([A-Z0-9_]+)
 				      \s* \(
 				      \s* ( .*? )
-				      \s* \);
-				      \s* \}
-				    \s*\z!msx ) {
+				      \s* \) ( \s* ; \s* \} \s* )
+				    \z!$1return $3$4!msx ) {
 					warn( "no return value found!" );
 					next;
 				}
 
-				my $ret = $1;
-				my $var = $2;
+				my $ret = $2;
+				my $var = $3;
 
 				warn( "ret=<$ret>, var=<$var>" );
+
+				# lookup return type
+				unless ( $code =~ m!
+				    ^ \s* ([A-Za-z0-9 \t]+	# type decl
+				    (?: \s*\* | \s+ )		# delimiter
+				    \Q$var\E \s* ) [;,]
+				    !msx ) {
+					warn( "!!! failed to find type: $var\n" );
+				}
+
+				my $retype = anonvar( $1 );
+
+
+				if ( $retype ) {
+					warn( "!!! retype: $retype\n" );
+
+					$new->[0] = $retype;
+				}
+
+				$new->[2] = $code;
+
+				warn( "updated code: <<<$new->[0]\n$name($new->[1])$code>>>" );
 			}
 
 			next;
