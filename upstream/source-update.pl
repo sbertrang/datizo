@@ -32,6 +32,20 @@ sub cleanargs
 	return $string;
 }
 
+sub anonvar
+{
+	my $var = shift;
+
+	$var =~ s! \s+ ! !gmsx;
+	$var =~ s!\A[ ]!!x;
+	$var =~ s![ ]\z!!x;
+
+	# last element is a variable
+	$var =~ s!\A ( .+? ) (?: ([ ][*]) | [ ] ) [a-z0-9_]+? \z!$1.($2||'')!ex;
+
+	return $var;
+}
+
 my $libdir = realpath( "../lib" );
 my $distdir = realpath( "./postgresql-9.2.2" );
 my @libsrcs = map( m!\A $libdir / (.+) \z!x ? $1 : (), glob( "$libdir/*.c" ) );
@@ -129,6 +143,9 @@ for my $distsrc ( @distsrcs ) {
 
 warn( "compare results...\n" );
 
+# map postgresql macros to real types
+my %typemap;
+
 for my $name ( @libfuncs ) {
 	my $old = $libfuncs{ $name };
 	my $new = $distfuncs{ $name };
@@ -141,37 +158,87 @@ for my $name ( @libfuncs ) {
 		next;
 	}
 
-	warn( "===>  $name\n" );
-
 	unless ( $old ) {
-		warn( "no old function: $name\n" );
+		warn( "$name: no old function\n" );
 		next;
 	}
 	elsif ( ! $new ) {
-		warn( "no new function: $name\n" );
+		warn( "$name: no new function\n" );
 		next;
 	}
 	elsif ( $old->[0] ne $new->[0] ) {
 
 		# static?
 		if ( $new->[0] =~ m!\A static \s+ (.+) !x && $1 eq $old->[0] ) {
-			warn( "local return value without static!" );
+			warn( "$name: local return value without static!\n" );
 		}
 		else {
-			warn( "different return value: old=<$old->[0]> != new=<$new->[0]>\n" );
+			warn( "$name: different return value: old=<$old->[0]> != new=<$new->[0]>\n" );
+
+			# more work to do...
+			if ( $new->[0] eq 'Datum' ) {
+				my $code = $new->[2];
+
+				warn( "find args in $code" );
+
+				while ( $code =~ s!
+				    ^ ( [ \t]* \# [ \t]* ifdef [ \t]+ NOT_USED [ \t]* [\r\n]+ )?
+				      ( \s+ ([^=;(){}#]+?)
+				        \s* =
+				        \s* PG_GETARG_([A-Z0-9_]+)
+				        \( ([0-9]+) \) ;
+				      )
+				      (?: [ \t]* \# [ \t]* endif [ \t]* [\r\n]+ )?
+				    $ !!msx ) {
+					my $unused = $1 ? 1 : 0;
+					my $line = $2;
+					my $var = $3;
+					my $macro = $4;
+					my $pos = $5;
+
+					$var = cleanargs( $var );
+
+					$typemap{ $macro } = anonvar( $var );
+
+					if ( $unused ) {
+						warn( "NOT USED: ###$line###\n" );
+						next;
+					}
+
+					warn( " - indirect argument: $var - ARG[$pos] - $macro" );
+				}
+
+				unless ( $code =~ m!
+				    ^ \s* PG_RETURN_([A-Z0-9_]+)
+				      \s* \(
+				      \s* ( .*? )
+				      \s* \);
+				      \s* \}
+				    \s*\z!msx ) {
+					warn( "no return value found!" );
+					next;
+				}
+
+				my $ret = $1;
+				my $var = $2;
+
+				warn( "ret=<$ret>, var=<$var>" );
+			}
+
 			next;
 		}
 
 	}
 	elsif ( $old->[1] ne $new->[1] ) {
-		warn( "different arguments: <$old->[1]> != <$new->[1]>\n" );
+		warn( "$name: different arguments: <$old->[1]> != <$new->[1]>\n" );
 		next;
 	}
 	elsif ( $old->[2] ne $new->[2] ) {
-		warn( "different function body: <$old->[2]> != <$new->[2]>\n" );
+		warn( "$name: different function body: <$old->[2]> != <$new->[2]>\n" );
 		next;
 	}
 
-	warn( "old and new are the same: $name\n" );
+	warn( "$name: same\n" );
 }
 
+warn( Dumper( \%typemap ) );
