@@ -128,7 +128,7 @@ for my $distsrc ( @distsrcs ) {
 
 		unless ( $args eq $libargs{ $libsrc } ) {
 			warn( "arguments do not match: <$args> != <$libargs{$libsrc}>" );
-			next;
+			#next;
 		}
 
 		push( @{ $distlibs{ $name } }, $distsrc );
@@ -179,7 +179,9 @@ for my $name ( sort( keys( %distlibs ) ) ) {
 	}
 }
 
+my @missing = grep !exists( $distlibs{ $_ } ), @libnames;
 
+warn( Dumper( { missing => \@missing } ) );
 
 #
 # helper functions
