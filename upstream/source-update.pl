@@ -387,5 +387,17 @@ errhint("Perhaps you need a different \"datestyle\" setting.")));
 	$new->{body} =~ s!
 	    (\s+) elog \s* \( \s* ERROR \s* , \s* (.+?) \s* \) \s* ;
 	    !${1}warnx(${2});!gmsx;
+
+	$new->{body} =~ s!
+	    (\s+) ereport \s* \( \s* LOG \s* , \s* \( \s*
+	    errcode_for_file_access \s* \( \s* \) \s* , \s*
+	    errmsg \s* \( \s* (.+?) \s* \) \s* \) \s* \) \s* ;
+	    !${1}warnx(${2});!gmsx;
+
+	$new->{body} =~ s!\b AllocateDir \s* \( !opendir(!gx;
+	$new->{body} =~ s!\b
+	    ReadDir \s* \( \s* dirdesc \s* , \s* dirname \s* \)
+	    !readdir(dirdesc)!gx;
+	$new->{body} =~ s!\b FreeDir \s* \( !closedir(!gx;
 }
 
