@@ -34,8 +34,7 @@
  * 1997-05-27
  */
 int
-DecodeDateTime(char **field, int *ftype, int nf,
-			   int *dtype, struct tm * tm, fsec_t *fsec, int *tzp)
+DecodeDateTime(char **field, int *ftype, int nf, int *dtype, struct tm *tm, fsec_t *fsec, int *tzp)
 {
 	int			fmask = 0,
 				tmask,

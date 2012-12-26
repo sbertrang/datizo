@@ -11,8 +11,7 @@
  * copy the actual filename into canonname and return true.
  */
 bool
-scan_directory_ci(const char *dirname, const char *fname, int fnamelen,
-				  char *canonname, int canonnamelen)
+scan_directory_ci(const char *dirname, const char *fname, int fnamelen, char *canonname, int canonnamelen)
 {
 	bool		found = false;
 	DIR		   *dirdesc;

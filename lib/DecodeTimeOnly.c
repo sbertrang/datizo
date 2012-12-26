@@ -21,8 +21,7 @@
  * if time zones are allowed. - thomas 2001-12-26
  */
 int
-DecodeTimeOnly(char **field, int *ftype, int nf,
-			   int *dtype, struct tm * tm, fsec_t *fsec, int *tzp)
+DecodeTimeOnly(char **field, int *ftype, int nf, int *dtype, struct tm *tm, fsec_t *fsec, int *tzp)
 {
 	int			fmask = 0,
 				tmask,
