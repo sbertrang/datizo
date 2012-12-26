@@ -189,22 +189,6 @@ for my $name ( @libfuncs ) {
 
 				while ( $code =~ s! ^ ($reifdef) $regetarg [\r\n]+ $reendif !!msx ||
 				    $code =~ s! ^ () $regetarg $ !!msx ) {
-				#while ( $code =~ s! ^ ( $reifdef )? $regetarg (?: $reendif )? $ !!msx ) {
-
-=tmp
-				while ( $code =~ s!
-				    ^ ( [ \t]* \# [ \t]* ifdef [ \t]+ NOT_USED [ \t]* [\r\n]+ )?
-				      ( \s+ ([^=;(){}#]+?)
-				        \s* =
-				        \s* PG_GETARG_([A-Z0-9_]+)
-				        \( ([0-9]+) \) ;
-				      )
-				      (?: [ \t\r\n]* \# [ \t]* endif [ \t]* [\r\n]+ )?
-				    $ !!msx ) {
-=cut
-
-				#while ( $code =~ s! ^ ($reifdef) $regetarg $reendif $ !!msx ) { #||
-				    #$code =~ s! ^ () $regetarg $ !!msx ) {
 					my $unused = $1 ? 1 : 0;
 					my $line = $2;
 					my $var = $3;
