@@ -347,8 +347,45 @@ sub fixup_types
 	$new->{body} =~ s!\b MAXPGPATH \b!MAXPATHLEN!gx;
 
 	# return open(fullname, O_RDONLY | PG_BINARY, 0);
-	$new->{body} =~ s! [ ][|][ ] PG_BINARY [,] !!gx;
+	$new->{body} =~ s! [ ][|][ ] PG_BINARY [,] !,!gx;
+
+	# two cases of uncatched returns
+	$new->{body} =~ s! PG_RETURN_DATEADT \s* \( \s* date \s* \) \s* ; !return date;!gmsx;
+
+=ereport
+
+ereport( ERROR, (
+    errcode( ERRCODE_DATETIME_FIELD_OVERFLOW ),
+    errmsg( "date/time field value out of range: \"%s\"", str )
+) );
+
+ereport( ERROR, (
+    errcode( ERRCODE_INVALID_DATETIME_FORMAT ),
+    errmsg( "invalid input syntax for type %s: \"%s\"", datatype, str )
+) );
+
+ereport( ERROR, (
+    errcode( ERRCODE_INVALID_PARAMETER_VALUE ),
+    errmsg( "timestamp(%d) precision must be between %d and %d", typmod, 0, MAX_TIMESTAMP_PRECISION )
+) );
+
+elog( ERROR, "unrecognized interval typmod: %d", typmod );
+
+errhint("Perhaps you need a different \"datestyle\" setting.")));
 
 
+
+=cut
+
+	$new->{body} =~ s!
+	    (\s+) ereport \s* \( \s* ERROR \s* , \s* \( \s*
+	      errcode \s* \( \s* [A-Za-z0-9_]+ \s* \) \s* , \s*
+	      errmsg \s* ( \( \s* .+? \s* \) ) \s*
+	      (?: , \s* errhint \s* \( \s* .+? \s* \) \s* )?
+	    \) \s* \) \s* ; !${1}warnx${2};!gmsx;
+
+	$new->{body} =~ s!
+	    (\s+) elog \s* \( \s* ERROR \s* , \s* (.+?) \s* \) \s* ;
+	    !${1}warnx(${2});!gmsx;
 }
 
