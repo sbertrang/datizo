@@ -271,7 +271,7 @@ sub fixup_datum_func
 		my $pos = $5;
 		my $type = anonvar( $var );
 
-		$var = cleanargs( $var );
+		my $cvar = cleanargs( $var );
 
 		$typemap{ $macro } = $type;
 
@@ -280,9 +280,18 @@ sub fixup_datum_func
 			next;
 		}
 
-		#warn( " - indirect argument: $var - ARG[$pos] - $macro" );
+		#warn( " - indirect argument: $cvar - ARG[$pos] - $macro" );
 
-		push( @args, $var );
+		# silently ignore typmod - it is practically only used for time based types and default to maximum precision (typmod=0)
+		if ( $cvar =~ m!\A int32(?:_t)?[ ]typmod \z!x ) {
+			# except for safety reasons keep it around at the start
+			$body =~ s!\A (\s*\{) (\s*) (\S) !${1}${2}$var = 0;${2}${3}!msx;
+
+			warn( "$name: skip typmod: $cvar\n" );
+			next;
+		}
+
+		push( @args, $cvar );
 
 	}
 
