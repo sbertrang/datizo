@@ -2,6 +2,9 @@
 
 #include "datizo.h"
 
+/*
+ *
+ */
 void
 AdjustTimestampForTypmod(Timestamp *time, int32_t typmod)
 {

@@ -2,6 +2,9 @@
 
 #include "datizo.h"
 
+/*
+ *
+ */
 TimeADT
 time_in(char *str)
 {
