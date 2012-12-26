@@ -115,13 +115,13 @@ for my $libsrc ( @libsrcs ) {
 	if ( $libsrcs{ $libsrc } =~ m! ^ $refuncret $func $refuncargs $refuncbody !msx ) {
 		my $ret = $1;
 		my $args = $2;
-		my $code = $3;
-		warn( "found old function: $ret - $func ( $args )\n$code\n\n" );
+		my $body = $3;
+		warn( "found old function: $ret - $func ( $args )\n$body\n\n" );
 
 		$libfuncs{ $func } = {
 			'returns'	=> cleanargs( $ret ),
 			'arguments'	=> cleanargs( $args ),
-			'body'		=> $code,
+			'body'		=> $body,
 		};
 	}
 	else {
@@ -137,14 +137,14 @@ for my $distsrc ( @distsrcs ) {
 	while ( $distsrcs{ $distsrc } =~ m! ^ $refuncret ($relibfuncs) $refuncargs $refuncbody !gmsx ) {
 		my $ret = $1;
 		my $func = $2;
-		my $code = $4;
+		my $body = $4;
 		my $args = $3;
-		warn( "found new function: $ret - $func ( $args )\n$code\n\n" );
+		warn( "found new function: $ret - $func ( $args )\n$body\n\n" );
 
 		$distfuncs{ $func } = {
 			'returns'	=> cleanargs( $ret ),
 			'arguments'	=> cleanargs( $args ),
-			'body'		=> $code,
+			'body'		=> $body,
 		};
 	}
 }
@@ -186,17 +186,17 @@ for my $name ( @libfuncs ) {
 
 			# more work to do...
 			if ( $new->{returns} eq 'Datum' ) {
-				my $code = $new->{body};
+				my $body = $new->{body};
 				my @args;
 
-				warn( "find args in $code" );
+				warn( "find args in $body" );
 
 				my $reifdef = "[ \\t]* \\# [ \\t]* ifdef [ \\t]+ NOT_USED [ \\t]* [\\r\\n]+";
 				my $regetarg = "( \\s+ ([^=;(){}#]+?) \\s* = \\s* PG_GETARG_([A-Z0-9_]+) \\( ([0-9]+) \\) ; ) [\\r\\n]+";
 				my $reendif = "[ \\t]* \\# [ \\t]* endif [ \\t]* [\\r\\n]+";
 
-				while ( $code =~ s! ^ ($reifdef) $regetarg $reendif !!msx ||
-				    $code =~ s! ^ () $regetarg !!msx ) {
+				while ( $body =~ s! ^ ($reifdef) $regetarg $reendif !!msx ||
+				    $body =~ s! ^ () $regetarg !!msx ) {
 					my $unused = $1 ? 1 : 0;
 					my $line = $2;
 					my $var = $3;
@@ -223,7 +223,7 @@ for my $name ( @libfuncs ) {
 					$new->{arguments} = join( ', ', @args );
 				}
 
-				unless ( $code =~ s!
+				unless ( $body =~ s!
 				    ^ (\s*) PG_RETURN_([A-Z0-9_]+)
 				      \s* \(
 				      \s* ( .*? )
@@ -239,7 +239,7 @@ for my $name ( @libfuncs ) {
 				warn( "ret=<$ret>, var=<$var>" );
 
 				# lookup return type
-				unless ( $code =~ m!
+				unless ( $body =~ m!
 				    ^ \s* ([A-Za-z0-9 \t]+	# type decl
 				    (?: \s*\* | \s+ )		# delimiter
 				    \Q$var\E \s* ) [;,]
@@ -256,9 +256,9 @@ for my $name ( @libfuncs ) {
 					$new->{returns} = $retype;
 				}
 
-				$new->{body} = $code;
+				$new->{body} = $body;
 
-				warn( "updated code: <<<$new->{returns}\n$name($new->{arguments})$code>>>" );
+				warn( "updated code: <<<$new->{returns}\n$name($new->{arguments})$body>>>" );
 			}
 
 			next;
