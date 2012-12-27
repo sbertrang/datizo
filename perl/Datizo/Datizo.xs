@@ -81,6 +81,8 @@ OUTPUT:
 
 MODULE = Datizo		PACKAGE = Datizo::TimestampTz		
 
+FALLBACK: TRUE
+
 Datizo_TimestampTz
 new(SV *self, char *string)
 CODE:
@@ -101,8 +103,17 @@ OUTPUT:
 
 char *
 to_string(Datizo_TimestampTz self, ...)
+OVERLOAD: \"\"
 CODE:
 	RETVAL = timestamptz_out(*self);
+OUTPUT:
+	RETVAL
+
+int
+cmp(Datizo_TimestampTz l, Datizo_TimestampTz r, IV s)
+OVERLOAD: cmp <=>
+CODE:
+	RETVAL = timestamp_cmp_internal(*l, *r);
 OUTPUT:
 	RETVAL
 
