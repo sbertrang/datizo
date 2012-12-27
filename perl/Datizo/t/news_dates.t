@@ -1,3 +1,27 @@
+
+use strict;
+use warnings;
+
+use Test::More
+    tests => 1
+;
+
+BEGIN {
+    use_ok( 'Datizo' );
+}
+
+chomp(
+	my @data = <DATA>
+);
+
+for my $line ( @data ) {
+	my $dtz = Datizo::TimestampTz->new( $line );
+
+	warn "scalar object: $dtz\n";
+
+}
+
+__DATA__
 Mon, 24 Dec 2012 04:18:20 +0000
 Fri, 21 Dec 2012 17:30:37 +0000
 Tue, 18 Dec 2012 17:40:03 +0000
