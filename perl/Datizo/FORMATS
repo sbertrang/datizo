@@ -1,0 +1,112 @@
+
+# SUPPORTED
+
+## W3CDTF
+
+Examples:
+
+ * 2003-02-15T13:50:05-05:00
+
+Libararies:
+
+ - DateTime::Format::W3CDTF
+
+   This module understands the W3CDTF date/time format, an ISO 8601 profile,
+   defined at http://www.w3.org/TR/NOTE-datetime. This format as the native date
+   format of RSS 1.0.
+
+## ICal
+
+Examples:
+
+ * 20030117T032900Z
+
+Libraries:
+
+ - DateTime::Format::ICal
+
+   This module understands the ICal date/time and duration formats, as defined
+   in RFC 2445.
+
+## Sybase
+
+Examples:
+
+ * 2004-08-21 14:36:48.080
+
+ - DateTime::Format::Sybase
+
+   Parse and format Sybase datetimes
+
+## ISO8601
+
+Examples:
+
+ * 1985-04-12T10:15:30.5
+ * 19850412T101530Z
+
+Libraries:
+
+ - DateTime::Format::ISO8601
+
+   Parses almost all ISO8601 date and time formats. ISO8601 time-intervals will
+   be supported in a later release.
+
+## SQLite
+
+Examples:
+
+ * 2003-01-16 23:12:01
+
+Libraries:
+
+ - DateTime::Format::SQLite
+
+   This module understands the formats used by SQLite for its date, datetime and
+   time functions.
+
+## RFC3501
+
+Examples:
+
+ *  1-Jul-2002 13:50:05 +0200
+
+Libraries:
+
+ - DateTime::Format::RFC3501
+
+   This module understands the RFC3501 date-time format, defined at
+   http://tools.ietf.org/html/rfc3501.
+
+
+## Mail
+
+Examples:
+
+ * Sat, 29 Mar 2003 22:11:18 -0800
+ * 17 Oct 02 22:33:34 -0000
+ * 16 Jan 2003 13:11:15 PST
+ * 06-Mar-2003 09:03:29 ZE10
+ ! Fri, 07 Mar 2003 12:27:15 +1100 (EST)
+ * Fri, 10 Jan 2003 08:42:01 US/Central
+ * Fri, 14 Feb 2003 15:30 +0000
+
+Libraries:
+
+ - DateTime::Format::Mail
+
+   RFCs 2822 and 822 specify date formats to be used by email. This module
+   parses and emits such dates.
+
+# UNSUPPORTED
+
+## Strptime
+
+ - DateTime::Format::Strptime
+
+   This module implements most of strptime(3), the POSIX function that is the
+   reverse of strftime(3), for DateTime. While strftime takes a DateTime and a
+   pattern and returns a string, strptime takes a string and a pattern and
+   returns the DateTime object associated.
+
+
