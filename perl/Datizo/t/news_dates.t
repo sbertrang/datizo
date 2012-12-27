@@ -9,13 +9,12 @@ my @input;
 my @output;
 my @dates;
 
-BEGIN {
-    use_ok( 'Datizo' );
-}
 
 plan
     tests => 1 + @input
 ;
+
+use_ok( 'Datizo' );
 
 for my $line ( @input ) {
 	my $dtz = Datizo::TimestampTz->new( $line );
