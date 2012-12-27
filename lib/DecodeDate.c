@@ -36,8 +36,11 @@ DecodeDate(char *str, int fmask, int *tmask, bool *is2digits, struct tm *tm)
 	while (*str != '\0' && nf < MAXDATEFIELDS)
 	{
 		/* skip field separators */
-		while (!isalnum((unsigned char) *str))
+		while (*str != '\0' && !isalnum((unsigned char) *str))
 			str++;
+
+		if (*str == '\0')
+			return DTERR_BAD_FORMAT;		/* end of string after separator */
 
 		field[nf] = str;
 		if (isdigit((unsigned char) *str))

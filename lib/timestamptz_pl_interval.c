@@ -31,10 +31,8 @@ timestamptz_pl_interval(TimestampTz timestamp, Interval *span)
 					   *tm = &tt;
 			fsec_t		fsec;
 
-			if (timestamp2tm(timestamp, &tz, tm, &fsec, NULL, NULL) != 0) {
+			if (timestamp2tm(timestamp, &tz, tm, &fsec, NULL, NULL) != 0)
 				warnx("timestamp out of range");
-				return NULL;
-			}
 
 			tm->tm_mon += span->month;
 			if (tm->tm_mon > MONTHS_PER_YEAR)
@@ -54,11 +52,8 @@ timestamptz_pl_interval(TimestampTz timestamp, Interval *span)
 
 			tz = DetermineTimeZoneOffset(tm, session_timezone);
 
-			if (tm2timestamp(tm, fsec, &tz, &timestamp) != 0) {
-				errno = ERANGE;
+			if (tm2timestamp(tm, fsec, &tz, &timestamp) != 0)
 				warnx("timestamp out of range");
-				return NULL;
-			}
 		}
 
 		if (span->day != 0)
@@ -68,11 +63,8 @@ timestamptz_pl_interval(TimestampTz timestamp, Interval *span)
 			fsec_t		fsec;
 			int			julian;
 
-			if (timestamp2tm(timestamp, &tz, tm, &fsec, NULL, NULL) != 0) {
-				errno = ERANGE;
+			if (timestamp2tm(timestamp, &tz, tm, &fsec, NULL, NULL) != 0)
 				warnx("timestamp out of range");
-				return NULL;
-			}
 
 			/* Add days by converting to and from julian */
 			julian = date2j(tm->tm_year, tm->tm_mon, tm->tm_mday) + span->day;
@@ -80,11 +72,8 @@ timestamptz_pl_interval(TimestampTz timestamp, Interval *span)
 
 			tz = DetermineTimeZoneOffset(tm, session_timezone);
 
-			if (tm2timestamp(tm, fsec, &tz, &timestamp) != 0) {
-				errno = ERANGE;
+			if (tm2timestamp(tm, fsec, &tz, &timestamp) != 0)
 				warnx("timestamp out of range");
-				return NULL;
-			}
 		}
 
 		timestamp += span->time;

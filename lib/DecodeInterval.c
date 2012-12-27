@@ -63,7 +63,7 @@ DecodeInterval(char **field, int *ftype, int nf, int range, int *dtype, struct t
 				 * like DTK_TIME case above, plus handling the sign.
 				 */
 				if (strchr(field[i] + 1, ':') != NULL &&
-					DecodeTime(field[i] + 1, fmask, INTERVAL_FULL_RANGE,
+					DecodeTime(field[i] + 1, fmask, range,
 							   &tmask, tm, fsec) == 0)
 				{
 					if (*field[i] == '-')
@@ -81,7 +81,6 @@ DecodeInterval(char **field, int *ftype, int nf, int range, int *dtype, struct t
 					 * are reading right to left.
 					 */
 					type = DTK_DAY;
-					tmask = DTK_M(TZ);
 					break;
 				}
 

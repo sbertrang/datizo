@@ -13,7 +13,7 @@
 Interval *
 interval_in(char *str)
 {
-	int32_t		typmod = 0;
+	int32_t		typmod = INTERVAL_TYPMOD(MAX_INTERVAL_PRECISION, INTERVAL_FULL_RANGE);
 	Interval   *result;
 	fsec_t		fsec;
 	struct tm tt,
