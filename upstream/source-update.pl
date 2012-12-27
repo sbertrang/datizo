@@ -284,8 +284,15 @@ sub fixup_datum_func
 
 		# silently ignore typmod - it is practically only used for time based types and default to maximum precision (typmod=0)
 		if ( $cvar =~ m!\A int32(?:_t)?[ ]typmod \z!x ) {
+			if ( $name eq 'interval_in' ) {
+				$var .= " = INTERVAL_TYPMOD(MAX_INTERVAL_PRECISION, INTERVAL_FULL_RANGE)";
+			}
+			else {
+				$var .= " = 0";
+			}
+
 			# except for safety reasons keep it around at the start
-			$body =~ s!\A (\s*\{) (\s*) (\S) !${1}${2}$var = 0;${2}${3}!msx;
+			$body =~ s!\A (\s*\{) (\s*) (\S) !${1}${2}$var;${2}${3}!msx;
 
 			warn( "$name: skip typmod: $cvar\n" );
 			next;
