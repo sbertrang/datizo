@@ -98,6 +98,62 @@ Libraries:
    RFCs 2822 and 822 specify date formats to be used by email. This module
    parses and emits such dates.
 
+
+## Date::Parse
+
+Examples:
+
+ ! 1995:01:24T09:08:17.1823213
+ * 1995-01-24T09:08:17.1823213
+ * Wed, 16 Jun 94 07:29:35 CST           Comma and day name are optional 
+ * Thu, 13 Oct 94 10:13:13 -0700
+ ! Wed, 9 Nov 1994 09:50:32 -0500 (EST)  Text in ()'s will be ignored.
+ * 21 dec 17:05                          Will be parsed in the current time zone
+ ! 21-dec 17:05
+ ! 21/dec 17:05
+ * 21/dec/93 17:05
+ ! 1999 10:02:18 "GMT"
+ * 16 Nov 94 22:28:20 PST 
+
+
+## RFC3339
+
+Examples:
+
+ * 2002-07-01T13:50:05Z
+
+Libraries:
+
+ - DateTime::Format::RFC3339
+
+   This module understands the RFC3339 date/time format, an ISO 8601 profile,
+   defined at http://tools.ietf.org/html/rfc3339.
+
+
+## Oracle
+
+Examples:
+
+ * 2003-01-16 23:12:01
+
+Libraries:
+
+ - DateTime::Format::Oracle
+
+   This module may be used to convert Oracle date and timestamp values into
+   DateTime objects. It also can take a DateTime object and produce a date
+   string matching the NLS_DATE_FORMAT.
+
+   Oracle has flexible date formatting via its NLS_DATE_FORMAT session variable.
+   Date values will be returned from Oracle according to the current value of
+   that variable. Date values going into Oracle must also match the current
+   setting of NLS_DATE_FORMAT.
+
+
+## MySQL
+## MSSQL
+
+
 # UNSUPPORTED
 
 ## Strptime
