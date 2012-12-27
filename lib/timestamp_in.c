@@ -8,7 +8,7 @@
 Timestamp
 timestamp_in(char *str)
 {
-	int32_t		typmod = 0; /* PG_GETARG_INT32(2); */
+	int32_t		typmod = 0;
 	Timestamp	result;
 	fsec_t		fsec;
 	struct tm tt,

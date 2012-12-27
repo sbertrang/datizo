@@ -14,8 +14,7 @@
 TimestampTz
 timestamptz_in(char *str)
 {
-	/* char	   *str = PG_GETARG_CSTRING(0); */
-	int32_t		typmod = 0; /* PG_GETARG_INT32(2); */
+	int32_t		typmod = 0;
 	TimestampTz result;
 	fsec_t		fsec;
 	struct tm tt,
