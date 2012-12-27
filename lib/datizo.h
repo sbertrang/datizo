@@ -1343,4 +1343,6 @@ Interval *	interval_justify_hours(Interval *);
 TimestampTz	timestamptz_pl_interval(TimestampTz, Interval *);
 TimestampTz	timestamptz_mi_interval(TimestampTz, Interval *);
 
+int		timestamp_cmp_internal(Timestamp, Timestamp);
+
 #endif	/* __DATIZO_H__ */
