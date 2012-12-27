@@ -15,7 +15,11 @@ package Datizo::TimestampTz;
 
 use strict;
 use warnings;
-use overload '""' => \&Datizo::TimestampTz::to_string;
+use overload
+    'cmp' => \&Datizo::TimestampTz::cmp,
+    '<=>' => \&Datizo::TimestampTz::cmp,
+    '""' => \&Datizo::TimestampTz::to_string
+;
 
 1;
 
@@ -23,7 +27,9 @@ package Datizo::Timezone;
 
 use strict;
 use warnings;
-use overload '""' => \&Datizo::Timezone::to_string;
+use overload
+    '""' => \&Datizo::Timezone::to_string
+;
 
 1;
 
@@ -31,7 +37,9 @@ package Datizo::Interval;
 
 use strict;
 use warnings;
-use overload '""' => \&Datizo::Interval::to_string;
+use overload
+    '""' => \&Datizo::Interval::to_string
+;
 
 1;
 
