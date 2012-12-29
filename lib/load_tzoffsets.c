@@ -2,6 +2,8 @@
 
 #include "datizo.h"
 
+/*
+ */
 TimeZoneAbbrevTable *
 load_tzoffsets(const char *filename)
 {

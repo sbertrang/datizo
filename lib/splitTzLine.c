@@ -2,6 +2,8 @@
 
 #include "datizo.h"
 
+/*
+ */
 bool
 splitTzLine(const char *filename, int lineno, char *line, tzEntry *tzentry)
 {

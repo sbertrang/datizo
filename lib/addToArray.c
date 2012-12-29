@@ -2,6 +2,8 @@
 
 #include "datizo.h"
 
+/*
+ */
 int
 addToArray(tzEntry **base, int *arraysize, int n, tzEntry *entry, bool override)
 {
