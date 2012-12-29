@@ -360,6 +360,7 @@ sub fixup_types
 	$new->{body} =~ s!\b Assert \( !assert(!gx;
 	$new->{body} =~ s!\b pstrdup \( !strdup(!gx;
 	$new->{body} =~ s!\b palloc \( !malloc(!gx;
+	$new->{body} =~ s!\b repalloc \( !realloc(!gx;
 	$new->{body} =~ s!\b MAXPGPATH \b!MAXPATHLEN!gx;
 
 	# return open(fullname, O_RDONLY | PG_BINARY, 0);
@@ -431,6 +432,10 @@ errhint("Perhaps you need a different \"datestyle\" setting.")));
 
 	$new->{body} =~ s!
 	    (\s+) GUC_check_errhint \s* \( \s* (.+?) \s* \) \s* ;
+	    !${1}warnx(${2});!gmsx;
+
+	$new->{body} =~ s!
+	    (\s+) GUC_check_errdetail \s* \( \s* (.+?) \s* \) \s* ;
 	    !${1}warnx(${2});!gmsx;
 
 	$new->{body} =~ s!
