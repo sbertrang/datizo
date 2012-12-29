@@ -397,8 +397,25 @@ errhint("Perhaps you need a different \"datestyle\" setting.")));
 	    (\s+) ereport \s* \( \s* ERROR \s* , \s* \( \s*
 	      errcode \s* \( \s* [A-Za-z0-9_]+ \s* \) \s* , \s*
 	      errmsg \s* ( \( \s* .+? \s* \) ) \s*
-	      (?: , \s* errhint \s* \( \s* .+? \s* \) \s* )?
-	    \) \s* \) \s* ; !${1}warnx${2};!gmsx;
+	      (?: , \s* errhint \s* \( \s* (.+?) \s* \) \s* )?
+	    \) \s* \) \s* ;
+	!
+	    my ( $pre, $msg, $hint ) = ( $1, $2, $3 );
+
+	    # msg = "foo: %s", str
+	    # msg = "foo: %s, %s", str, s
+	    if ( $hint ) {
+	      my ( $fmt, $args ) = ( $msg, '' );
+	      while ( $fmt =~ s/ (,[^,"]+?) \z//x ) {
+	        $args = $1 . $args;
+	      }
+              $msg = qq|$fmt " (" $hint ")" $args|;
+	    }
+
+	warn( "errhint=<$hint>\n" );
+
+	    $pre . "warnx" . $msg . ";";
+	!egmsx;
 
 	$new->{body} =~ s!
 	    (\s+) elog \s* \( \s* ERROR \s* , \s* (.+?) \s* \) \s* ;
