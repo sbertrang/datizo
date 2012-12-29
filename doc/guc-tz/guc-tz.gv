@@ -39,22 +39,53 @@ digraph g {
 		PostmasterMain [ label = "\N()" ];
 	}
 
-	load_tzoffsets -> ParseTzFile [ label = "n = ParseTzFile(filename, 0, &array, &arraysize, 0)" ];
-	check_timezone_abbreviations -> load_tzoffsets [ label = "*extra = load_tzoffsets(*newval)" ];
-	assign_timezone_abbreviations -> InstallTimeZoneAbbrevs [ label = "InstallTimeZoneAbbrevs((TimeZoneAbbrevTable *) extra)" ];
+	load_tzoffsets -> ParseTzFile [
+		label = "n = ParseTzFile(filename, 0, &array, &arraysize, 0)"
+	];
 
-	// pg_timezone_abbrev_initialize -> assign_timezone_abbreviations;
-	pg_timezone_abbrev_initialize -> SetConfigOption [ label = <SetConfigOption("timezone_abbreviations", "Default", PGC_POSTMASTER, PGC_S_DYNAMIC_DEFAULT)> ];
-	SetConfigOption -> set_config_option [ label = <(void) set_config_option(name, value, context, source, GUC_ACTION_SET, true, 0)> ];
-	set_config_option -> call_string_check_hook [ label = "call_string_check_hook(conf, &newval, &newextra, source, elevel)" ];
-	call_string_check_hook -> check_timezone_abbreviations [ label = "(*conf->check_hook) (newval, extra, source)" ];
-	set_config_option -> assign_timezone_abbreviations [ label = "(*conf->assign_hook) (newval, newextra)" ];
+	check_timezone_abbreviations -> load_tzoffsets [
+		label = "*extra = load_tzoffsets(*newval)"
+	];
 
-	SelectConfigFiles -> pg_timezone_abbrev_initialize [ label = "pg_timezone_abbrev_initialize()" ];
+	assign_timezone_abbreviations -> InstallTimeZoneAbbrevs [
+		label = "InstallTimeZoneAbbrevs((TimeZoneAbbrevTable *) extra)"
+	];
 
-	AuxiliaryProcessMain -> SelectConfigFiles [ label = "SelectConfigFiles(userDoption, progname)" ];
-	PostmasterMain -> SelectConfigFiles [ label = "SelectConfigFiles(userDoption, progname)" ];
-	PostgresMain -> SelectConfigFiles [ label = "SelectConfigFiles(userDoption, progname)" ];
+	pg_timezone_abbrev_initialize -> SetConfigOption [
+		label = <SetConfigOption("timezone_abbreviations", "Default", PGC_POSTMASTER, PGC_S_DYNAMIC_DEFAULT)>
+	];
+
+	SetConfigOption -> set_config_option [
+		label = <(void) set_config_option(name, value, context, source, GUC_ACTION_SET, true, 0)>
+	];
+
+	set_config_option -> call_string_check_hook [
+		label = "call_string_check_hook(conf, &newval, &newextra, source, elevel)"
+	];
+
+	call_string_check_hook -> check_timezone_abbreviations [
+		label = "(*conf->check_hook) (newval, extra, source)"
+	];
+
+	set_config_option -> assign_timezone_abbreviations [
+		label = "(*conf->assign_hook) (newval, newextra)"
+	];
+
+	SelectConfigFiles -> pg_timezone_abbrev_initialize [
+		label = "pg_timezone_abbrev_initialize()"
+	];
+
+	AuxiliaryProcessMain -> SelectConfigFiles [
+		label = "SelectConfigFiles(userDoption, progname)"
+	];
+
+	PostmasterMain -> SelectConfigFiles [
+		label = "SelectConfigFiles(userDoption, progname)"
+	];
+
+	PostgresMain -> SelectConfigFiles [
+		label = "SelectConfigFiles(userDoption, progname)"
+	];
 
 	
 }
