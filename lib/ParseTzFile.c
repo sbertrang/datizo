@@ -12,6 +12,8 @@
 
 #define WHITESPACE " \t\n\r"
 
+static const char *my_exec_path = "/usr/local/share/postgresql";
+
 /*
  * Parse a single timezone abbrev file --- can recurse to handle @INCLUDE
  *
