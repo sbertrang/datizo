@@ -2,6 +2,12 @@
 
 #include "datizo.h"
 
+#include <string.h>
+#include <limits.h>
+#include <stdlib.h>
+
+#define WHITESPACE " \t\n\r"
+
 /*
  */
 bool

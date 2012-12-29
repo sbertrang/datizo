@@ -1,6 +1,7 @@
 /* postgresql: src/backend/utils/misc/tzparser.c */
 
 #include "datizo.h"
+#include <string.h>
 
 /*
  */
