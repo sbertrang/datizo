@@ -52,7 +52,7 @@ addToArray(tzEntry **base, int *arraysize, int n, tzEntry *entry, bool override)
 			/* same abbrev but something is different, complain */
 			warnx("time zone abbreviation \"%s\" is multiply defined",
 							 entry->abbrev);
-			GUC_check_errdetail("Entry in time zone file \"%s\", line %d, conflicts with entry in file \"%s\", line %d.",
+			warnx("Entry in time zone file \"%s\", line %d, conflicts with entry in file \"%s\", line %d.",
 								midptr->filename, midptr->lineno,
 								entry->filename, entry->lineno);
 			return -1;
@@ -65,7 +65,7 @@ addToArray(tzEntry **base, int *arraysize, int n, tzEntry *entry, bool override)
 	if (n >= *arraysize)
 	{
 		*arraysize *= 2;
-		*base = (tzEntry *) repalloc(*base, *arraysize * sizeof(tzEntry));
+		*base = (tzEntry *) realloc(*base, *arraysize * sizeof(tzEntry));
 	}
 
 	arrayptr = *base + low;
