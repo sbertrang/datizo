@@ -2,6 +2,8 @@
 
 #include "datizo.h"
 
+#include <stdlib.h>
+
 /*
  */
 TimeZoneAbbrevTable *
