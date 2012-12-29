@@ -69,7 +69,7 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 	get_share_path(my_exec_path, share_path);
 	snprintf(file_path, sizeof(file_path), "%s/timezonesets/%s",
 			 share_path, filename);
-	tzFile = AllocateFile(file_path, "r");
+	tzFile = fopen(file_path, "r");
 	if (!tzFile)
 	{
 		/*
@@ -172,7 +172,7 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 			return -1;
 	}
 
-	FreeFile(tzFile);
+	fclose(tzFile);
 
 	return n;
 }
