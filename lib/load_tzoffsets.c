@@ -8,8 +8,10 @@ TimeZoneAbbrevTable *
 load_tzoffsets(const char *filename)
 {
 	TimeZoneAbbrevTable *result = NULL;
+#if 0
 	MemoryContext tmpContext;
 	MemoryContext oldContext;
+#endif
 	tzEntry    *array;
 	int			arraysize;
 	int			n;
@@ -18,12 +20,14 @@ load_tzoffsets(const char *filename)
 	 * Create a temp memory context to work in.  This makes it easy to clean
 	 * up afterwards.
 	 */
+#if 0
 	tmpContext = AllocSetContextCreate(CurrentMemoryContext,
 									   "TZParserMemory",
 									   ALLOCSET_SMALL_MINSIZE,
 									   ALLOCSET_SMALL_INITSIZE,
 									   ALLOCSET_SMALL_MAXSIZE);
 	oldContext = MemoryContextSwitchTo(tmpContext);
+#endif
 
 	/* Initialize array at a reasonable size */
 	arraysize = 128;
@@ -44,8 +48,10 @@ load_tzoffsets(const char *filename)
 	}
 
 	/* Clean up */
+#if 0
 	MemoryContextSwitchTo(oldContext);
 	MemoryContextDelete(tmpContext);
+#endif
 
 	return result;
 }
