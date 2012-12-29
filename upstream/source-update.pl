@@ -426,6 +426,14 @@ errhint("Perhaps you need a different \"datestyle\" setting.")));
 	    !${1}warnx(${2});!gmsx;
 
 	$new->{body} =~ s!
+	    (\s+) GUC_check_errmsg \s* \( \s* (.+?) \s* \) \s* ;
+	    !${1}warnx(${2});!gmsx;
+
+	$new->{body} =~ s!
+	    (\s+) GUC_check_errhint \s* \( \s* (.+?) \s* \) \s* ;
+	    !${1}warnx(${2});!gmsx;
+
+	$new->{body} =~ s!
 	    (\s+) ereport \s* \( \s* LOG \s* , \s* \( \s*
 	    errcode_for_file_access \s* \( \s* \) \s* , \s*
 	    errmsg \s* \( \s* (.+?) \s* \) \s* \) \s* \) \s* ;
@@ -436,5 +444,9 @@ errhint("Perhaps you need a different \"datestyle\" setting.")));
 	    ReadDir \s* \( \s* dirdesc \s* , \s* dirname \s* \)
 	    !readdir(dirdesc)!gx;
 	$new->{body} =~ s!\b FreeDir \s* \( !closedir(!gx;
+
+	$new->{body} =~ s!\b AllocateFile \s* \( !fopen(!gx;
+	$new->{body} =~ s!\b FreeFile \s* \( !fclose(!gx;
+
 }
 
