@@ -1,0 +1,17 @@
+digraph g {
+	ParseTzFile;
+	load_tzoffsets;
+	check_timezone_abbreviations;
+	assign_timezone_abbreviations;
+	InstallTimeZoneAbbrevs;
+	pg_timezone_abbrev_initialize;
+
+	load_tzoffsets -> ParseTzFile;
+	check_timezone_abbreviations -> load_tzoffsets;
+	assign_timezone_abbreviations -> InstallTimeZoneAbbrevs;
+
+	// pg_timezone_abbrev_initialize -> assign_timezone_abbreviations;
+	pg_timezone_abbrev_initialize -> SetConfigOption;
+	SetConfigOption -> set_config_option;
+	set_config_option -> assign_timezone_abbreviations;
+}
