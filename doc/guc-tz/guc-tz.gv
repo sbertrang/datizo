@@ -1,14 +1,26 @@
 digraph g {
-	ParseTzFile [ label = "\N()" ];
-	load_tzoffsets [ label = "\N()" ] ;
-	check_timezone_abbreviations [ label = "\N()" ];
-	assign_timezone_abbreviations [ label = "\N()" ];
-	InstallTimeZoneAbbrevs [ label = "\N()" ];
-	pg_timezone_abbrev_initialize [ label = "\N()" ];
-	set_config_option [ label = "\N()" ];
-	SetConfigOption [ label = "\N()" ];
-	call_string_check_hook[ label = "\N()" ];
-	SelectConfigFiles[ label = "\N()" ];
+
+
+	subgraph cluster_tzparser {
+		label = "src/backend/utils/misc/tzparser.c";
+
+		ParseTzFile [ label = "\N()" ];
+		load_tzoffsets [ label = "\N()" ] ;
+	}
+
+	subgraph cluster_guc {
+		label = "src/backend/utils/misc/guc.c";
+
+		check_timezone_abbreviations [ label = "\N()" ];
+		assign_timezone_abbreviations [ label = "\N()" ];
+		InstallTimeZoneAbbrevs [ label = "\N()" ];
+		pg_timezone_abbrev_initialize [ label = "\N()" ];
+		SetConfigOption [ label = "\N()" ];
+		set_config_option [ label = "\N()" ];
+		call_string_check_hook[ label = "\N()" ];
+		SelectConfigFiles[ label = "\N()" ];
+	}
+
 
 
 	load_tzoffsets -> ParseTzFile [ label = "n = ParseTzFile(filename, 0, &array, &arraysize, 0)" ];
