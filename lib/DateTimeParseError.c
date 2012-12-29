@@ -23,7 +23,7 @@ DateTimeParseError(int dterr, const char *str, const char *datatype)
 			break;
 		case DTERR_MD_FIELD_OVERFLOW:
 			/* <nanny>same as above, but add hint about DateStyle</nanny> */
-			warnx("date/time field value out of range: \"%s\"",
+			warnx("date/time field value out of range: \"%s\"" " (" "Perhaps you need a different \"datestyle\" setting." ")" ,
 							str);
 			break;
 		case DTERR_INTERVAL_OVERFLOW:
