@@ -123,6 +123,27 @@ SRCS +=		interval_justify_days.c
 
 SRCS +=		timestamp_cmp_internal.c
 
+# for tzparser.c
+SRCS +=		CheckDateTokenTable.c
+SRCS +=		ConvertTimeZoneAbbrevs.c
+# tzparser.c
+SRCS +=		ParseTzFile.c
+SRCS +=		addToArray.c
+SRCS +=		load_tzoffsets.c
+SRCS +=		splitTzLine.c
+SRCS +=		validateTzEntry.c
+
+SRCS +=		get_share_path.c
+SRCS +=		make_relative_path.c
+
+
+SRCS +=		join_path_components.c
+SRCS +=		canonicalize_path.c
+SRCS +=		trim_directory.c
+SRCS +=		dir_strcmp.c
+SRCS +=		trim_trailing_separator.c
+SRCS +=		skip_drive.c
+
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0
 

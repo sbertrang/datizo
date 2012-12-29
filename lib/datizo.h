@@ -1345,4 +1345,68 @@ TimestampTz	timestamptz_mi_interval(TimestampTz, Interval *);
 
 int		timestamp_cmp_internal(Timestamp, Timestamp);
 
+
+/* postgresql: src/include/utils/tzparser.h */
+/*
+ * The result of parsing a timezone configuration file is an array of
+ * these structs, in order by abbrev.  We export this because datetime.c
+ * needs it.
+ */
+typedef struct tzEntry
+{
+        /* the actual data: TZ abbrev (downcased), offset, DST flag */
+        char       *abbrev;
+        int                     offset;                 /* in seconds from UTC */
+        bool            is_dst;
+        /* source information (for error messages) */
+        int                     lineno;
+        const char *filename;
+} tzEntry;
+
+int			ParseTzFile(const char *, int, tzEntry **, int *, int);
+int			addToArray(tzEntry **, int *, int, tzEntry *, bool);
+TimeZoneAbbrevTable *	load_tzoffsets(const char *);
+bool			splitTzLine(const char *, int, char *, tzEntry *);
+bool			validateTzEntry(tzEntry *);
+
+bool		CheckDateTokenTable(const char *, const datetkn *, int);
+void		ConvertTimeZoneAbbrevs(TimeZoneAbbrevTable *, struct tzEntry *, int);
+
+#define	PGSHAREDIR	"/usr/local/share/postgresql"
+#define	PGBINDIR	"/usr/local/bin"
+
+
+#ifndef WIN32
+#define IS_DIR_SEP(ch)  ((ch) == '/')
+
+#define is_absolute_path(filename) \
+( \
+        IS_DIR_SEP((filename)[0]) \
+)
+#else
+#define IS_DIR_SEP(ch)  ((ch) == '/' || (ch) == '\\')
+
+/* See path_is_relative_and_below_cwd() for how we handle 'E:abc'. */
+#define is_absolute_path(filename) \
+( \
+        IS_DIR_SEP((filename)[0]) || \
+        (isalpha((unsigned char) ((filename)[0])) && (filename)[1] == ':' && \
+         IS_DIR_SEP((filename)[2])) \
+)
+#endif
+
+#ifndef WIN32
+#define skip_drive(path)        (path)
+#endif
+
+void		get_share_path(const char *, char *);
+void		make_relative_path(char *, const char *, const char *, const char *);
+
+void		join_path_components(char *, const char *, const char *);
+void		trim_trailing_separator(char *);
+int		dir_strcmp(const char *, const char *);
+void		canonicalize_path(char *);
+void		trim_directory(char *);
+
+
 #endif	/* __DATIZO_H__ */
