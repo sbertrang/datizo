@@ -1,91 +1,91 @@
-rfc1123	ihosts	Sun, 06 Nov 1994 08:49:37 GMT
+rfc1123	ihosts	pass	Sun, 06 Nov 1994 08:49:37 GMT	
 
-rfc2445	ical	19980118T230000
-rfc2445	ical	19980119T070000Z
-rfc2445	ical	20030117T032900Z
+rfc2445	ical	pass	19980118T230000	
+rfc2445	ical	pass	19980119T070000Z	
+rfc2445	ical	pass	20030117T032900Z	
 
-rfc2616	http	Sun, 06 Nov 1994 08:49:37 GMT
-rfc2616	http	Sunday, 06-Nov-94 08:49:37 GMT
-rfc2616	http	Sun Nov  6 08:49:37 1994
+rfc2616	http	pass	Sun, 06 Nov 1994 08:49:37 GMT	
+rfc2616	http	pass	Sunday, 06-Nov-94 08:49:37 GMT	
+rfc2616	http	pass	Sun Nov  6 08:49:37 1994	
 
-rfc2822	email	Fri, 21 Nov 1997 09:55:06 -0600
-rfc2822	email	Tue, 1 Jul 2003 10:52:37 +0200
-rfc2822	email	Thu, 13 Feb 1969 23:32:54 -0330
-rfc2822	email	Fri, 21 Nov 1997 09:55:06 -0600
-rfc2822	email	Fri, 21 Nov 1997 10:01:10 -0600
-rfc2822	email	Fri, 21 Nov 1997 11:00:00 -0600
-rfc2822	email	Fri, 21 Nov 1997 09:55:06 -0600
-rfc2822	email	Mon, 24 Nov 1997 14:22:01 -0800
-rfc2822	email	Fri, 21 Nov 1997 09:55:06 -0600
-rfc2822	email	Fri, 21 Nov 1997 09:55:06 -0600
-rfc2822	email	Thu, 13 Feb 1969 23:32 -0330 (Newfoundland Time)
-rfc2822	email	Tue, 1 Jul 2003 10:52:37 +0200
-rfc2822	email	21 Nov 97 09:55:06 GMT
-rfc2822	email	Sat, 29 Mar 2003 22:11:18 -0800
-rfc2822	email	17 Oct 02 22:33:34 -0000
-rfc2822	email	16 Jan 2003 13:11:15 PST
-rfc2822	email	06-Mar-2003 09:03:29 ZE10
-rfc2822	email	Fri, 07 Mar 2003 12:27:15 +1100 (EST)
-rfc2822	email	Fri, 10 Jan 2003 08:42:01 US/Central
-rfc2822	email	Fri, 14 Feb 2003 15:30 +0000
+rfc2822	email	pass	Fri, 21 Nov 1997 09:55:06 -0600	
+rfc2822	email	pass	Tue, 1 Jul 2003 10:52:37 +0200	
+rfc2822	email	pass	Thu, 13 Feb 1969 23:32:54 -0330	
+rfc2822	email	pass	Fri, 21 Nov 1997 09:55:06 -0600	
+rfc2822	email	pass	Fri, 21 Nov 1997 10:01:10 -0600	
+rfc2822	email	pass	Fri, 21 Nov 1997 11:00:00 -0600	
+rfc2822	email	pass	Fri, 21 Nov 1997 09:55:06 -0600	
+rfc2822	email	pass	Mon, 24 Nov 1997 14:22:01 -0800	
+rfc2822	email	pass	Fri, 21 Nov 1997 09:55:06 -0600	
+rfc2822	email	pass	Fri, 21 Nov 1997 09:55:06 -0600	
+rfc2822	email	pass	Thu, 13 Feb 1969 23:32 -0330 (Newfoundland Time)	
+rfc2822	email	pass	Tue, 1 Jul 2003 10:52:37 +0200	
+rfc2822	email	pass	21 Nov 97 09:55:06 GMT	
+rfc2822	email	pass	Sat, 29 Mar 2003 22:11:18 -0800	
+rfc2822	email	pass	17 Oct 02 22:33:34 -0000	
+rfc2822	email	pass	16 Jan 2003 13:11:15 PST	
+rfc2822	email	pass	06-Mar-2003 09:03:29 ZE10	
+rfc2822	email	pass	Fri, 07 Mar 2003 12:27:15 +1100 (EST)	
+rfc2822	email	pass	Fri, 10 Jan 2003 08:42:01 US/Central	
+rfc2822	email	pass	Fri, 14 Feb 2003 15:30 +0000	
 
-rfc3339	timestamps	1985-04-12T23:20:50.52Z
-rfc3339	timestamps	1996-12-19T16:39:57-08:00
-rfc3339	timestamps	1990-12-31T23:59:60Z
-rfc3339	timestamps	1990-12-31T15:59:60-08:00
-rfc3339	timestamps	1937-01-01T12:00:27.87+00:20
-rfc3339	timestamps	2002-07-01T13:50:05Z
+rfc3339	timestamps	pass	1985-04-12T23:20:50.52Z	
+rfc3339	timestamps	pass	1996-12-19T16:39:57-08:00	
+rfc3339	timestamps	pass	1990-12-31T23:59:60Z	
+rfc3339	timestamps	pass	1990-12-31T15:59:60-08:00	
+rfc3339	timestamps	pass	1937-01-01T12:00:27.87+00:20	
+rfc3339	timestamps	pass	2002-07-01T13:50:05Z	
 
-rfc3501	imap	1-Jul-2002 13:50:05 +0200
+rfc3501	imap	pass	1-Jul-2002 13:50:05 +0200	
 
-rfc822	email	26 Aug 76 1429 EDT
-rfc822	email	26 Aug 76 1430 EDT
+rfc822	email	pass	26 Aug 76 1429 EDT	
+rfc822	email	pass	26 Aug 76 1430 EDT	
 
-iso8601	datetimes	2003-02-15T13:50:05-05:00
-iso8601	datetimes	19850412T101530Z
+iso8601	datetimes	pass	2003-02-15T13:50:05-05:00	
+iso8601	datetimes	pass	19850412T101530Z	
 
-sql	sybase	2004-08-21 14:36:48.080
-sql	sqlite	2003-01-16 23:12:01
-sql	oracle	2003-01-16 23:12:01
+sql	sybase	pass	2004-08-21 14:36:48.080	
+sql	sqlite	pass	2003-01-16 23:12:01	
+sql	oracle	pass	2003-01-16 23:12:01	
 
-perl	dateparse	1995:01:24T09:08:17.1823213
-perl	dateparse	1995-01-24T09:08:17.1823213
-perl	dateparse	Wed, 16 Jun 94 07:29:35 CST		# Comma and day name are optional 
-perl	dateparse	Thu, 13 Oct 94 10:13:13 -0700
-perl	dateparse	Wed, 9 Nov 1994 09:50:32 -0500 (EST)	# Text in ()'s will be ignored.
-perl	dateparse	21 dec 17:05				# Will be parsed in the current time zone
-perl	dateparse	21-dec 17:05
-perl	dateparse	21/dec 17:05
-perl	dateparse	21/dec/93 17:05
-perl	dateparse	1999 10:02:18 "GMT"
-perl	dateparse	16 Nov 94 22:28:20 PST 
+perl	dateparse	skip	1995:01:24T09:08:17.1823213	
+perl	dateparse	pass	1995-01-24T09:08:17.1823213	
+perl	dateparse	pass	Wed, 16 Jun 94 07:29:35 CST	# Comma and day name are optional 
+perl	dateparse	pass	Thu, 13 Oct 94 10:13:13 -0700	
+perl	dateparse	pass	Wed, 9 Nov 1994 09:50:32 -0500 (EST)	# Text in ()'s will be ignored.
+perl	dateparse	skip	21 dec 17:05	# Will be parsed in the current time zone
+perl	dateparse	skip	21-dec 17:05	
+perl	dateparse	skip	21/dec 17:05	
+perl	dateparse	pass	21/dec/93 17:05	
+perl	dateparse	pass	1999 10:02:18 "GMT"	
+perl	dateparse	pass	16 Nov 94 22:28:20 PST 	
 
-perl	httpdate	Wed, 09 Feb 1994 22:23:32 GMT		# HTTP format
-perl	httpdate	Thu Feb  3 17:03:55 GMT 1994		# ctime(3) format
-perl	httpdate	Thu Feb  3 00:00:00 1994		# ANSI C asctime() format
-perl	httpdate	Tuesday, 08-Feb-94 14:15:29 GMT		# old rfc850 HTTP format
-perl	httpdate	Tuesday, 08-Feb-1994 14:15:29 GMT	# broken rfc850 HTTP format
+perl	httpdate	pass	Wed, 09 Feb 1994 22:23:32 GMT	# HTTP format
+perl	httpdate	pass	Thu Feb  3 17:03:55 GMT 1994	# ctime(3) format
+perl	httpdate	pass	Thu Feb  3 00:00:00 1994	# ANSI C asctime() format
+perl	httpdate	pass	Tuesday, 08-Feb-94 14:15:29 GMT	# old rfc850 HTTP format
+perl	httpdate	pass	Tuesday, 08-Feb-1994 14:15:29 GMT	# broken rfc850 HTTP format
 
-perl	httpdate	03/Feb/1994:17:03:55 -0700		# common logfile format
-perl	httpdate	09 Feb 1994 22:23:32 GMT		# HTTP format (no weekday)
-perl	httpdate	08-Feb-94 14:15:29 GMT			# rfc850 format (no weekday)
-perl	httpdate	08-Feb-1994 14:15:29 GMT		# broken rfc850 format (no weekday)
+perl	httpdate	pass	03/Feb/1994:17:03:55 -0700	# common logfile format
+perl	httpdate	pass	09 Feb 1994 22:23:32 GMT	# HTTP format (no weekday)
+perl	httpdate	pass	08-Feb-94 14:15:29 GMT	# rfc850 format (no weekday)
+perl	httpdate	pass	08-Feb-1994 14:15:29 GMT	# broken rfc850 format (no weekday)
 
-perl	httpdate	1994-02-03 14:15:29 -0100		# ISO 8601 format
-perl	httpdate	1994-02-03 14:15:29			# zone is optional
-perl	httpdate	1994-02-03				# only date
-perl	httpdate	1994-02-03T14:15:29			# Use T as separator
-perl	httpdate	19940203T141529Z			# ISO 8601 compact format
-perl	httpdate	19940203				# only date
+perl	httpdate	pass	1994-02-03 14:15:29 -0100	# ISO 8601 format
+perl	httpdate	pass	1994-02-03 14:15:29	# zone is optional
+perl	httpdate	pass	1994-02-03	# only date
+perl	httpdate	pass	1994-02-03T14:15:29	# Use T as separator
+perl	httpdate	pass	19940203T141529Z	# ISO 8601 compact format
+perl	httpdate	pass	19940203	# only date
 
-perl	httpdate	08-Feb-94				# old rfc850 HTTP format    (no weekday, no time)
-perl	httpdate	08-Feb-1994				# broken rfc850 HTTP format (no weekday, no time)
-perl	httpdate	09 Feb 1994				# proposed new HTTP format  (no weekday, no time)
-perl	httpdate	03/Feb/1994				# common logfile format     (no time, no offset)
+perl	httpdate	pass	08-Feb-94	# old rfc850 HTTP format    (no weekday, no time)
+perl	httpdate	pass	08-Feb-1994	# broken rfc850 HTTP format (no weekday, no time)
+perl	httpdate	pass	09 Feb 1994	# proposed new HTTP format  (no weekday, no time)
+perl	httpdate	pass	03/Feb/1994	# common logfile format     (no time, no offset)
 
-perl	httpdate	Feb  3  1994				# Unix 'ls -l' format
-perl	httpdate	Feb  3 17:03				# Unix 'ls -l' format
+perl	httpdate	pass	Feb  3  1994	# Unix 'ls -l' format
+perl	httpdate	skip	Feb  3 17:03	# Unix 'ls -l' format
 
-perl	httpdate	11-15-96  03:52PM			# Windows 'dir' format
+perl	httpdate	pass	11-15-96  03:52PM	# Windows 'dir' format
 
 

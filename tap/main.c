@@ -20,10 +20,18 @@
 
 #include "datizo.h"
 
+enum tapresult {
+	TAP_PASS,
+	TAP_FAIL,
+	TAP_SKIP,
+	TAP_TODO
+};
+
 struct tapline {
 	TAILQ_ENTRY(tapline)	 entry;
 	char		*group;
 	char		*label;
+	enum tapresult	 result;
 	char		*string;
 	char		*comment;
 };
@@ -31,11 +39,11 @@ struct tapline {
 TAILQ_HEAD(taplines, tapline);
 
 struct tapline *
-mktapline(const char *group, const char *label, const char *string, const char *comment)
+clonetapline(const struct tapline *src)
 {
 	struct tapline *tapline;
 
-	if (group == NULL || label == NULL || string == NULL) {
+	if (src->group == NULL || src->label == NULL || src->string == NULL) {
 		errno = EINVAL;
 		return NULL;
 	}
@@ -43,10 +51,11 @@ mktapline(const char *group, const char *label, const char *string, const char *
 	if ((tapline = malloc(sizeof(*tapline))) == NULL)
 		return NULL;
 
-	tapline->group = strdup(group);
-	tapline->label = strdup(label);
-	tapline->string = strdup(string);
-	tapline->comment = comment == NULL ? NULL : strdup(comment);
+	tapline->group = strdup(src->group);
+	tapline->label = strdup(src->label);
+	tapline->string = strdup(src->string);
+	tapline->result = src->result;
+	tapline->comment = src->comment == NULL ? NULL : strdup(src->comment);
 
 	return tapline;
 }
@@ -76,6 +85,11 @@ parseline(struct taplines *taplines, char *line, size_t len)
 
 	if (len == 0)
 		return 0;
+
+	/* skip comment lines */
+	if (buf[0] == '#') {
+		return 0;
+	}
 
 	/*
 	warnx("buf: <%s> (%zd)", buf, len);
@@ -115,6 +129,36 @@ parseline(struct taplines *taplines, char *line, size_t len)
 
 
 	if ((n = strcspn(p, "\t")) == 0) {
+		warnx("no tab after result");
+		return -1;
+	}
+	if (p[n] != '\t') {
+		warnx("really no tab after result");
+		return -1;
+	}
+	p[n] = '\0';
+	if (strcasecmp(p, "pass") == 0)
+		tmpline.result = TAP_PASS;
+	else if (strcasecmp(p, "fail") == 0)
+		tmpline.result = TAP_FAIL;
+	else if (strcasecmp(p, "skip") == 0)
+		tmpline.result = TAP_SKIP;
+	else if (strcasecmp(p, "todo") == 0)
+		tmpline.result = TAP_TODO;
+	else {
+		warnx("unknown test result: %s", p);
+		return -1;
+	}
+	/*
+	warnx("label: %s", p);
+	*/
+	p += n+1;
+
+
+
+
+
+	if ((n = strcspn(p, "\t")) == 0) {
 		warnx("no tab after date");
 		return -1;
 	}
@@ -127,7 +171,7 @@ parseline(struct taplines *taplines, char *line, size_t len)
 
 	/* can be done after the date */
 	if (p[0] == '\0') {
-		tapline = mktapline(tmpline.group, tmpline.label, tmpline.string, NULL);
+		tapline = clonetapline(&tmpline);
 		TAILQ_INSERT_TAIL(taplines, tapline, entry);
 		return 1;
 	}
@@ -156,7 +200,7 @@ parseline(struct taplines *taplines, char *line, size_t len)
 	*/
 	tmpline.comment = p;
 
-	tapline = mktapline(tmpline.group, tmpline.label, tmpline.string, tmpline.comment);
+	tapline = clonetapline(&tmpline);
 
 	TAILQ_INSERT_TAIL(taplines, tapline, entry);
 
@@ -210,8 +254,20 @@ getdates(const char *path)
 	TAILQ_FOREACH(tapline, &taplines, entry) {
 		/* warnx("# %s - %s # %s\n%s", tapline->group, tapline->label, tapline->comment ? tapline->comment : "", tapline->string); */
 
-		tsz = timestamptz_in(tapline->string);
-		ok(tsz != NULL, "%s - %s: %s", tapline->group, tapline->label, tapline->string);
+
+		if (tapline->result == TAP_TODO)
+			todo_start("expect fail on: %s", tapline->string);
+
+		if (tapline->result == TAP_SKIP) {
+			skip(1, "ignore: %s", tapline->string);
+		}
+		else {
+			tsz = timestamptz_in(tapline->string);
+			ok(tsz != NULL, "%s - %s: %s", tapline->group, tapline->label, tapline->string);
+		}
+
+		if (tapline->result == TAP_TODO)
+			todo_end();
 	}
 
 	return 0;
