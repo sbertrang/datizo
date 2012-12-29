@@ -21,7 +21,23 @@ digraph g {
 		SelectConfigFiles[ label = "\N()" ];
 	}
 
+	subgraph cluster_bootstrap {
+		label = "src/backend/bootstrap/bootstrap.c";
 
+		AuxiliaryProcessMain [ label = "\N()"];
+	}
+
+	subgraph cluster_postgres {
+		label = "src/backend/tcop/postgres.c";
+
+		PostgresMain [ label = "\N()" ];
+	}
+
+	subgraph cluster_postmaster {
+		label = "src/backend/postmaster/postmaster.c";
+
+		PostmasterMain [ label = "\N()" ];
+	}
 
 	load_tzoffsets -> ParseTzFile [ label = "n = ParseTzFile(filename, 0, &array, &arraysize, 0)" ];
 	check_timezone_abbreviations -> load_tzoffsets [ label = "*extra = load_tzoffsets(*newval)" ];
@@ -35,4 +51,10 @@ digraph g {
 	set_config_option -> assign_timezone_abbreviations [ label = "(*conf->assign_hook) (newval, newextra)" ];
 
 	SelectConfigFiles -> pg_timezone_abbrev_initialize [ label = "pg_timezone_abbrev_initialize()" ];
+
+	AuxiliaryProcessMain -> SelectConfigFiles [ label = "SelectConfigFiles(userDoption, progname)" ];
+	PostmasterMain -> SelectConfigFiles [ label = "SelectConfigFiles(userDoption, progname)" ];
+	PostgresMain -> SelectConfigFiles [ label = "SelectConfigFiles(userDoption, progname)" ];
+
+	
 }
