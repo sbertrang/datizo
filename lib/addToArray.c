@@ -47,7 +47,7 @@ addToArray(tzEntry **base, int *arraysize, int n, tzEntry *entry, bool override)
 				return n;
 			}
 			/* same abbrev but something is different, complain */
-			GUC_check_errmsg("time zone abbreviation \"%s\" is multiply defined",
+			warnx("time zone abbreviation \"%s\" is multiply defined",
 							 entry->abbrev);
 			GUC_check_errdetail("Entry in time zone file \"%s\", line %d, conflicts with entry in file \"%s\", line %d.",
 								midptr->filename, midptr->lineno,

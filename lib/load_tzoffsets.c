@@ -36,7 +36,7 @@ load_tzoffsets(const char *filename)
 		result = malloc(offsetof(TimeZoneAbbrevTable, abbrevs) +
 						n * sizeof(datetkn));
 		if (!result)
-			GUC_check_errmsg("out of memory");
+			warnx("out of memory");
 		else
 			ConvertTimeZoneAbbrevs(result, array, n);
 	}

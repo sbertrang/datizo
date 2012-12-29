@@ -48,7 +48,7 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 		{
 			/* at level 0, just use guc.c's regular "invalid value" message */
 			if (depth > 0)
-				GUC_check_errmsg("invalid time zone file name \"%s\"",
+				warnx("invalid time zone file name \"%s\"",
 								 filename);
 			return -1;
 		}
@@ -61,7 +61,7 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 	 */
 	if (depth > 3)
 	{
-		GUC_check_errmsg("time zone file recursion limit exceeded in file \"%s\"",
+		warnx("time zone file recursion limit exceeded in file \"%s\"",
 						 filename);
 		return -1;
 	}
@@ -86,9 +86,9 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 		tzdir = opendir(file_path);
 		if (tzdir == NULL)
 		{
-			GUC_check_errmsg("could not open directory \"%s\": %m",
+			warnx("could not open directory \"%s\": %m",
 							 file_path);
-			GUC_check_errhint("This may indicate an incomplete PostgreSQL installation, or that the file \"%s\" has been moved away from its proper location.",
+			warnx("This may indicate an incomplete PostgreSQL installation, or that the file \"%s\" has been moved away from its proper location.",
 							  my_exec_path);
 			return -1;
 		}
@@ -100,7 +100,7 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 		 * complaint is enough
 		 */
 		if (errno != ENOENT || depth > 0)
-			GUC_check_errmsg("could not read time zone file \"%s\": %m",
+			warnx("could not read time zone file \"%s\": %m",
 							 filename);
 
 		return -1;
@@ -113,7 +113,7 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 		{
 			if (ferror(tzFile))
 			{
-				GUC_check_errmsg("could not read time zone file \"%s\": %m",
+				warnx("could not read time zone file \"%s\": %m",
 								 filename);
 				return -1;
 			}
@@ -123,7 +123,7 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 		if (strlen(tzbuf) == sizeof(tzbuf) - 1)
 		{
 			/* the line is too long for tzbuf */
-			GUC_check_errmsg("line is too long in time zone file \"%s\", line %d",
+			warnx("line is too long in time zone file \"%s\", line %d",
 							 filename, lineno);
 			return -1;
 		}
@@ -146,7 +146,7 @@ ParseTzFile(const char *filename, int depth, tzEntry **base, int *arraysize, int
 			includeFile = strtok(includeFile, WHITESPACE);
 			if (!includeFile || !*includeFile)
 			{
-				GUC_check_errmsg("@INCLUDE without file name in time zone file \"%s\", line %d",
+				warnx("@INCLUDE without file name in time zone file \"%s\", line %d",
 								 filename, lineno);
 				return -1;
 			}

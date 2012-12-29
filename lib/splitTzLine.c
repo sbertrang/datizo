@@ -17,7 +17,7 @@ splitTzLine(const char *filename, int lineno, char *line, tzEntry *tzentry)
 	abbrev = strtok(line, WHITESPACE);
 	if (!abbrev)
 	{
-		GUC_check_errmsg("missing time zone abbreviation in time zone file \"%s\", line %d",
+		warnx("missing time zone abbreviation in time zone file \"%s\", line %d",
 						 filename, lineno);
 		return false;
 	}
@@ -26,14 +26,14 @@ splitTzLine(const char *filename, int lineno, char *line, tzEntry *tzentry)
 	offset = strtok(NULL, WHITESPACE);
 	if (!offset)
 	{
-		GUC_check_errmsg("missing time zone offset in time zone file \"%s\", line %d",
+		warnx("missing time zone offset in time zone file \"%s\", line %d",
 						 filename, lineno);
 		return false;
 	}
 	tzentry->offset = strtol(offset, &offset_endptr, 10);
 	if (offset_endptr == offset || *offset_endptr != '\0')
 	{
-		GUC_check_errmsg("invalid number for time zone offset in time zone file \"%s\", line %d",
+		warnx("invalid number for time zone offset in time zone file \"%s\", line %d",
 						 filename, lineno);
 		return false;
 	}
@@ -56,7 +56,7 @@ splitTzLine(const char *filename, int lineno, char *line, tzEntry *tzentry)
 
 	if (remain[0] != '#')		/* must be a comment */
 	{
-		GUC_check_errmsg("invalid syntax in time zone file \"%s\", line %d",
+		warnx("invalid syntax in time zone file \"%s\", line %d",
 						 filename, lineno);
 		return false;
 	}

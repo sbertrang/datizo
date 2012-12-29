@@ -13,14 +13,14 @@ validateTzEntry(tzEntry *tzentry)
 	 */
 	if (strlen(tzentry->abbrev) > TOKMAXLEN)
 	{
-		GUC_check_errmsg("time zone abbreviation \"%s\" is too long (maximum %d characters) in time zone file \"%s\", line %d",
+		warnx("time zone abbreviation \"%s\" is too long (maximum %d characters) in time zone file \"%s\", line %d",
 						 tzentry->abbrev, TOKMAXLEN,
 						 tzentry->filename, tzentry->lineno);
 		return false;
 	}
 	if (tzentry->offset % 900 != 0)
 	{
-		GUC_check_errmsg("time zone offset %d is not a multiple of 900 sec (15 min) in time zone file \"%s\", line %d",
+		warnx("time zone offset %d is not a multiple of 900 sec (15 min) in time zone file \"%s\", line %d",
 						 tzentry->offset,
 						 tzentry->filename, tzentry->lineno);
 		return false;
@@ -32,7 +32,7 @@ validateTzEntry(tzEntry *tzentry)
 	if (tzentry->offset > 14 * 60 * 60 ||
 		tzentry->offset < -14 * 60 * 60)
 	{
-		GUC_check_errmsg("time zone offset %d is out of range in time zone file \"%s\", line %d",
+		warnx("time zone offset %d is out of range in time zone file \"%s\", line %d",
 						 tzentry->offset,
 						 tzentry->filename, tzentry->lineno);
 		return false;
