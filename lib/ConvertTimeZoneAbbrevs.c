@@ -1,7 +1,6 @@
 /* postgresql: src/backend/utils/adt/datetime.c*/
 
 #include "datizo.h"
-#include "tzparser.h"
 
 #include <assert.h>
 #include <string.h>
