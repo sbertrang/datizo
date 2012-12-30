@@ -33,10 +33,25 @@ struct tapline {
 	char		*label;
 	enum tapresult	 result;
 	char		*string;
+	char		*output;
 	char		*comment;
 };
 
 TAILQ_HEAD(taplines, tapline);
+
+struct tapcol {
+	char	*name;
+	int	 optional;
+	size_t	 offset;
+} tapcols[] = {
+	{ "group",	0, offsetof(struct tapline,group) },
+	{ "label",	0, offsetof(struct tapline,label) },
+	{ "string",	0, offsetof(struct tapline,string) },
+	{ "result",	0, offsetof(struct tapline,result) },
+	{ "output",	0, offsetof(struct tapline,output) },
+	{ "comment",	1, offsetof(struct tapline,comment) }
+};
+#define	TAPCOLS	(sizeof(tapcols)/sizeof(tapcols[0]))
 
 struct tapline *
 clonetapline(const struct tapline *src)
@@ -55,19 +70,29 @@ clonetapline(const struct tapline *src)
 	tapline->label = strdup(src->label);
 	tapline->string = strdup(src->string);
 	tapline->result = src->result;
-	tapline->comment = src->comment == NULL ? NULL : strdup(src->comment);
+	tapline->output = strdup(src->output);
+	tapline->comment = src->comment == NULL || src->comment[0] == '\0' ? NULL : strdup(src->comment);
 
 	return tapline;
 }
 
+/*
+ * rfc1123	ihosts	Sun, 06 Nov 1994 08:49:37 GMT	pass	1994-11-06 09:49:37+01	
+ */
+
 int
 parseline(struct taplines *taplines, char *line, size_t len)
 {
-	char	 buf[len+1];
-	char	*p;
-	size_t	 n;
-	struct tapline	  tmpline;
-	struct tapline	 *tapline;
+	char		 buf[len+1];
+	char		*p;
+	char		*r;
+	char		**s;
+	size_t		 n;
+	size_t		 rlen;
+	struct tapline	 tmpline;
+	struct tapline	*tapline;
+	struct tapcol	*col;
+	int		 c;
 
 	bzero(&tmpline, sizeof(tmpline));
 
@@ -91,114 +116,41 @@ parseline(struct taplines *taplines, char *line, size_t len)
 		return 0;
 	}
 
-	/*
-	warnx("buf: <%s> (%zd)", buf, len);
-	*/
+	/* warnx("line: %s", buf); */
 
 	p = buf;
-	if ((n = strcspn(p, "\t")) == 0) {
-		warnx("no tab after group");
-		return -1;
-	}
-	if (p[n] != '\t') {
-		warnx("really no tab after group");
-		return -1;
-	}
-
-	p[n] = '\0';
-	/*
-	warnx("group: %s", p);
-	*/
-	tmpline.group = p;
-	p += n+1;
-
-	if ((n = strcspn(p, "\t")) == 0) {
-		warnx("no tab after label");
-		return -1;
-	}
-	if (p[n] != '\t') {
-		warnx("really no tab after label");
-		return -1;
-	}
-	p[n] = '\0';
-	tmpline.label = p;
-	/*
-	warnx("label: %s", p);
-	*/
-	p += n+1;
-
-
-	if ((n = strcspn(p, "\t")) == 0) {
-		warnx("no tab after result");
-		return -1;
-	}
-	if (p[n] != '\t') {
-		warnx("really no tab after result");
-		return -1;
-	}
-	p[n] = '\0';
-	if (strcasecmp(p, "pass") == 0)
-		tmpline.result = TAP_PASS;
-	else if (strcasecmp(p, "fail") == 0)
-		tmpline.result = TAP_FAIL;
-	else if (strcasecmp(p, "skip") == 0)
-		tmpline.result = TAP_SKIP;
-	else if (strcasecmp(p, "todo") == 0)
-		tmpline.result = TAP_TODO;
-	else {
-		warnx("unknown test result: %s", p);
-		return -1;
-	}
-	/*
-	warnx("label: %s", p);
-	*/
-	p += n+1;
-
-
-
-
-
-	if ((n = strcspn(p, "\t")) == 0) {
-		warnx("no tab after date");
-		return -1;
-	}
-	p[n] = '\0';
-	tmpline.string = p;
-	/*
-	warnx("date: %s", p);
-	*/
-	p += n+1;
-
-	/* can be done after the date */
-	if (p[0] == '\0') {
-		tapline = clonetapline(&tmpline);
-		TAILQ_INSERT_TAIL(taplines, tapline, entry);
-		return 1;
-	}
-
-	/* allow multiple tabs before comment */
 	n = 0;
-	while (p[n] == '\t')
+	while ((r = strsep(&p, "\t")) != NULL) {
+		if (n >= TAPCOLS)
+			err(0, "n=%zd > TAPCOLS=%d", n, TAPCOLS);
+
+		rlen = strlen(r);
+		col = &tapcols[n];
+
+		if (col->optional == 1 && rlen == 0)
+			continue;
+
+		/* warnx("r: %s (%zd) [%zd:%s,%d]", r, rlen, n, col->name, col->optional); */
+
+		if (strcmp(col->name, "result") == 0) {
+			if (strcasecmp(r, "pass") == 0)
+				tmpline.result = TAP_PASS;
+			else if (strcasecmp(r, "fail") == 0)
+				tmpline.result = TAP_FAIL;
+			else if (strcasecmp(r, "skip") == 0)
+				tmpline.result = TAP_SKIP;
+			else if (strcasecmp(r, "todo") == 0)
+				tmpline.result = TAP_TODO;
+			else {
+				warnx("unknown test result: %s", r);
+				return -1;
+			}
+		}
+		else
+			*(char **)((char *)&tmpline + col->offset) = r;
+
 		n++;
-
-	if (p[n] != '#') {
-		warnx("something which is not a hash: <%s>", p);
-		return -1;
 	}
-
-	/* skip leading tabs and hash sign */
-	p += n+1;
-
-	n = strspn(p, " \t");
-	p += n;
-
-	if (p[0] == '\0')
-		return -1;
-
-	/*
-	warnx("comment: %s", p);
-	*/
-	tmpline.comment = p;
 
 	tapline = clonetapline(&tmpline);
 
@@ -246,7 +198,7 @@ getdates(const char *path)
 
 	diag("Found %d test cases...", lines);
 
-	plan_tests(lines);
+	plan_tests(lines * 2);
 
 	pg_timezone_initialize();
 	session_timezone = pg_tzset("Europe/Amsterdam");
@@ -258,12 +210,15 @@ getdates(const char *path)
 		if (tapline->result == TAP_TODO)
 			todo_start("expect fail on: %s", tapline->string);
 
-		if (tapline->result == TAP_SKIP) {
-			skip(1, "ignore: %s", tapline->string);
-		}
+		if (tapline->result == TAP_SKIP)
+			skip(2, "ignore: %s", tapline->string);
 		else {
+			char *s;
 			tsz = timestamptz_in(tapline->string);
 			ok(tsz != NULL, "%s - %s: %s", tapline->group, tapline->label, tapline->string);
+
+			s = timestamptz_out(tsz);
+			ok( strcmp( s, tapline->output ) == 0, "output matches: <%s> == <%s>", s, tapline->output );
 		}
 
 		if (tapline->result == TAP_TODO)
