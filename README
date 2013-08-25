@@ -18,6 +18,9 @@ In the long run maybe this could lead to a joint effort of multiple projects.
 # Todo
 
 - change default datestyle to YMD (should be fine outside SQL context)
+- dual-life makefiles, shared config via includes, specific implementation for
+  GNU and BSD make
+- implement loading of remaining timezones
 
 # Notes
 
