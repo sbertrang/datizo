@@ -49,8 +49,9 @@ sub anonvar
 	return $var;
 }
 
+my $version = '9.3rc1';
 my $libdir = realpath( "../lib" );
-my $distdir = realpath( "./postgresql-9.2.4" );
+my $distdir = realpath( "./postgresql-$version" );
 my @libsrcs = map( m!\A $libdir / (.+) \z!x ? $1 : (), glob( "$libdir/*.c" ) );
 my %libsrcs;
 my %libdists;

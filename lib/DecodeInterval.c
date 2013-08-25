@@ -59,7 +59,7 @@ DecodeInterval(char **field, int *ftype, int nf, int range, int *dtype, struct t
 				assert(*field[i] == '-' || *field[i] == '+');
 
 				/*
-				 * Check for signed hh:mm or hh:mm:ss.  If so, process exactly
+				 * Check for signed hh:mm or hh:mm:ss.	If so, process exactly
 				 * like DTK_TIME case above, plus handling the sign.
 				 */
 				if (strchr(field[i] + 1, ':') != NULL &&
