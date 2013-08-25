@@ -4,7 +4,7 @@ This is an attempt to isolate the datetime functionality from PostgreSQL and
 make it available to other systems and languages too.
 
 So far the strategy has been to automate this as much as possible to be able to
-easily sync with upstream.
+easily sync with upstream (see upstream/source-update.pl).
 
 ## State
 
