@@ -91,6 +91,10 @@ then build_guc_variables()
 
 and afterwards initializes all GUC options with InitializeOneGUCOption()
 
+## Testing Perl on OSX
+
+Needs "export DYLD_LIBRARY_PATH=...datizo/lib" before "make test"
+
 
 # License
 
