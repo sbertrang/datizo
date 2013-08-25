@@ -18,4 +18,3 @@ ${DISTDIR}/.extract: ${DISTFILE}
 ${DISTFILE}:
 	ftp ${DISTURL}
 
-.include <bsd.subdir.mk>
