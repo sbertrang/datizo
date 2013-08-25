@@ -8,12 +8,16 @@ easily sync with upstream.
 
 ## State
 
-EXPERIMENTAL: Initialy functionality is working, but some parts are still missing.
+EXPERIMENTAL: Initial functionality is working, but some parts are still missing.
 Namely the formating functions and additional timezones need to be loaded.
 
 ## Future
 
 In the long run maybe this could lead to a joint effort of multiple projects.
+
+# Todo
+
+- change default datestyle to YMD (should be fine outside SQL context)
 
 # Notes
 
