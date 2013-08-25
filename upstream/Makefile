@@ -1,5 +1,5 @@
 
-DISTURL =	http://ftp.postgresql.org/pub/source/v9.2.2/postgresql-9.2.2.tar.bz2
+DISTURL =	http://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.bz2
 DISTFILE =	${DISTURL:T}
 DISTNAME =	${DISTFILE:R:R}
 DISTDIR =	${DISTNAME}

@@ -50,7 +50,7 @@ sub anonvar
 }
 
 my $libdir = realpath( "../lib" );
-my $distdir = realpath( "./postgresql-9.2.2" );
+my $distdir = realpath( "./postgresql-9.2.4" );
 my @libsrcs = map( m!\A $libdir / (.+) \z!x ? $1 : (), glob( "$libdir/*.c" ) );
 my %libsrcs;
 my %libdists;
