@@ -72,6 +72,12 @@ main(int argc, char *argv [])
 	warnx("eol: %s", s);
 
 
+	session_timezone = pg_tzset("Canada/Mountain");
+
+	s = timestamptz_out(tsz);
+
+	warnx("timestamptz in canada: %s", s);
+
 	return EX_OK;
 }
 
