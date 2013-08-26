@@ -20,8 +20,7 @@ In the long run maybe this could lead to a joint effort of multiple projects.
 - change default datestyle to YMD (should be fine outside SQL context)
 - dual-life makefiles, shared config via includes, specific implementation for
   GNU and BSD make
-- implement loading of remaining timezones
-- find a sane way to provide timezone data files
+- find a sane way to set and install the share directory
 
 # Notes
 
@@ -61,49 +60,13 @@ time interval "format with designators" defined in section 4.4.3.2 of ISO 8601.
 The IntervalStyle parameter also affects the interpretation of ambiguous
 interval input. See Section 8.5.4 for more information.
 
-## integration of additional tz setup
+## Loading of additional timezone abbreviations (like trailing Z)
 
-AFTER pg_timezone_initialize... emulate the GUC setup dance but only really load additional
-timezones
+After pg_timezone_initialize:
 
-from check_timezone_abbreviations():
-	/* OK, load the file and produce a malloc'd TimeZoneAbbrevTable */
-	TimeZoneAbbrevTable *tzabbr = load_tzoffsets("Default");
-
-from assign_timezone_abbreviations():
-	InstallTimeZoneAbbrevs(tzabbr);
-
-
-
-## currently missing is loading the tznames/
-
-this happens via
-
-  src/backend/utils/misc/tzparser.c:load_tzoffsets()
-
-which is called from
-
-  src/backend/utils/misc/guc.c:check_timezone_abbreviations()
-
-
-the other probably relevant call in this file is called from
-
-  src/backend/utils/misc/guc.c:assign_timezone_abbreviations()
-
-which comes from
-
-  src/backend/utils/adt/datetime.c:InstallTimeZoneAbbrevs()
-
-
-### entry point to the GUC things:
-
-  src/backend/utils/misc/guc.c:InitializeGUCOptions()
-
-this in fact calls pg_timezone_initialize()
-
-then build_guc_variables()
-
-and afterwards initializes all GUC options with InitializeOneGUCOption()
+	TimeZoneAbbrevTable *tzabbr;
+	if (tzabbr = load_tzoffsets("Default"))
+		InstallTimeZoneAbbrevs(tzabbr);
 
 ## Testing Perl on OSX
 
