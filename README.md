@@ -21,6 +21,7 @@ In the long run maybe this could lead to a joint effort of multiple projects.
 - dual-life makefiles, shared config via includes, specific implementation for
   GNU and BSD make
 - implement loading of remaining timezones
+- find a sane way to provide timezone data files
 
 # Notes
 
