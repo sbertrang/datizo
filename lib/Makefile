@@ -144,6 +144,8 @@ SRCS +=		dir_strcmp.c
 SRCS +=		trim_trailing_separator.c
 SRCS +=		skip_drive.c
 
+SRCS +=		InstallTimeZoneAbbrevs.c
+
 SHLIB_MAJOR =	0
 SHLIB_MINOR =	0
 

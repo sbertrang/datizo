@@ -7,15 +7,21 @@
 int
 main(int argc, char *argv [])
 {
-	TimestampTz	 tsz, eol;
-	Timestamp	 ts;
-	Interval	*i;
-	char		*s;
-	DateADT		 d;
-	TimeADT		 time;
-	TimeTzADT	*timetz;
+	TimeZoneAbbrevTable	*tzabbr;
+	TimestampTz		 tsz, eol;
+	Timestamp		 ts;
+	TimeTzADT		*timetz;
+	Interval		*i;
+	DateADT			 d;
+	TimeADT			 time;
+	char			*s;
 
 	pg_timezone_initialize();
+
+	if (!(tzabbr = load_tzoffsets("Default")))
+		warnx("failed to load Default");
+	else
+		InstallTimeZoneAbbrevs(tzabbr);
 
 	warnx("test...");
 

@@ -162,15 +162,17 @@ parseline(struct taplines *taplines, char *line, size_t len)
 int
 getdates(const char *path)
 {
-	FILE	*fp;
-	char	*line;
-	size_t	 len;
-	int	 next = 1;
-	struct taplines	 taplines;
-	int	 lines = 0;
-	struct tapline	*tapline;
-	TimestampTz	 tsz;
-	int	 n;
+	TimeZoneAbbrevTable	*tzabbr;
+	struct taplines		 taplines;
+	struct tapline		*tapline;
+	TimestampTz		 tsz;
+	size_t			 len;
+	FILE			*fp;
+	char			*line;
+	char			*defaults = "Default";
+	int			 next = 1;
+	int			 lines = 0;
+	int			 n;
 
 	TAILQ_INIT(&taplines);
 
@@ -201,6 +203,13 @@ getdates(const char *path)
 	plan_tests(lines * 2);
 
 	pg_timezone_initialize();
+
+	if (!(tzabbr = load_tzoffsets("Default")))
+		warnx("failed to load Default");
+	else
+		InstallTimeZoneAbbrevs(tzabbr);
+
+
 	session_timezone = pg_tzset("Europe/Amsterdam");
 
 	TAILQ_FOREACH(tapline, &taplines, entry) {

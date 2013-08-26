@@ -1325,6 +1325,8 @@ bool			validateTzEntry(tzEntry *);
 
 bool		CheckDateTokenTable(const char *, const datetkn *, int);
 void		ConvertTimeZoneAbbrevs(TimeZoneAbbrevTable *, struct tzEntry *, int);
+void		InstallTimeZoneAbbrevs(TimeZoneAbbrevTable *);
+
 
 #define	PGSHAREDIR	"../share"
 #define	PGBINDIR	"/usr/local/bin"

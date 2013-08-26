@@ -61,6 +61,19 @@ time interval "format with designators" defined in section 4.4.3.2 of ISO 8601.
 The IntervalStyle parameter also affects the interpretation of ambiguous
 interval input. See Section 8.5.4 for more information.
 
+## integration of additional tz setup
+
+AFTER pg_timezone_initialize... emulate the GUC setup dance but only really load additional
+timezones
+
+from check_timezone_abbreviations():
+	/* OK, load the file and produce a malloc'd TimeZoneAbbrevTable */
+	TimeZoneAbbrevTable *tzabbr = load_tzoffsets("Default");
+
+from assign_timezone_abbreviations():
+	InstallTimeZoneAbbrevs(tzabbr);
+
+
 
 ## currently missing is loading the tznames/
 
