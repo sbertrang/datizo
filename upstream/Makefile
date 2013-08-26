@@ -18,3 +18,9 @@ ${DISTDIR}/.extract: ${DISTFILE}
 ${DISTFILE}:
 	ftp ${DISTURL}
 
+share:
+	mkdir -p ../share
+	pax -vrw -s '!^${DISTDIR}/src/timezone!!' \
+	    ${DISTDIR}/src/timezone/tznames \
+	    ../share
+
